@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+    <line
+    x1="0"
+    y1="0"
+    x2="200"
+    y2="200"
+    stroke="deeppink"
+    stroke-width="8"
+  />
+    <text x="20" y="0">Hello</text>
+    <text x="20" y="20}">world!</text>
+</svg>
