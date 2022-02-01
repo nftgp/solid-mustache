@@ -1,8 +1,7 @@
 {
-  "name": "soltemplate",
+  "name": "solid-mustache",
   "version": "1.0.0",
-  "description": "",
-  "private": true,
+  "description": "{{mustache}} templates compiling to Solidity",
   "scripts": {
     "build": "hardhat compile",
     "test": "hardhat test",
@@ -55,5 +54,8 @@
   "resolutions": {
     "bitcore-lib": "8.25.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@handlebars/parser": "^2.1.0",
+    "@rari-capital/solmate": "^6.2.0"
+  }
 }

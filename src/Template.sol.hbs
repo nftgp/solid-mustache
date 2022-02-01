@@ -1,7 +1,37 @@
-// SPDX-License-Identifier: LGPL-3.0-only pragma solidity ^0.8.6; contract
-{{name}}
-{ constructor() {} function render() public pure { } function
-formatTokenURI(string memory imageURI) public pure returns (string memory) {
-return string( abi.encodePacked( "data:application/json;base64,", Base64.encode(
-bytes( abi.encodePacked( '{"name":"', "Guild Wand", '", "description":"Guild
-Wand", "attributes":"", "image":"', imageURI, '"}' ) ) ) ) ); } }
+// SPDX-License-Identifier: LGPL-3.0-only
+pragma solidity ^0.8.6;
+
+
+contract {{name}} {
+    
+    constructor() {}
+
+    function render() public
+        pure {
+
+    }
+
+    function formatTokenURI(string memory imageURI)
+        public
+        pure
+        returns (string memory)
+    {
+        return
+            string(
+                abi.encodePacked(
+                    "data:application/json;base64,",
+                    Base64.encode(
+                        bytes(
+                            abi.encodePacked(
+                                '{"name":"',
+                                "Guild Wand",
+                                '", "description":"Guild Wand", "attributes":"", "image":"',
+                                imageURI,
+                                '"}'
+                            )
+                        )
+                    )
+                )
+            );
+    }
+}
