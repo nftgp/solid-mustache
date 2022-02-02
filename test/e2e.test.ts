@@ -29,26 +29,9 @@ function solCompile(contractSource: string) {
             },
           },
         },
-      }),
-      { import: findImports }
+      })
     )
   )
-}
-
-function findImports(importPath: string) {
-  if (importPath === "@rari-capital/solmate/src/utils/SSTORE2.sol") {
-    return {
-      contents: readFileSync(
-        path.join(__dirname, "../node_modules", importPath),
-        {
-          encoding: "utf8",
-          flag: "r",
-        }
-      ),
-    }
-  } else {
-    return { error: "File not found" }
-  }
 }
 
 describe("end-to-end test suite", () => {
@@ -111,9 +94,13 @@ describe("end-to-end test suite", () => {
 
         const [signer] = await ethers.getSigners()
         const factory = new ethers.ContractFactory(abi, bytecode, signer)
+        const deploymentData = factory.interface.encodeDeploy()
+        const gas = await ethers.provider.estimateGas({ data: deploymentData })
         contract = await factory.deploy()
 
-        console.log("Successfully deployed template contract")
+        console.log(
+          `Successfully deployed template contract (gas cost: ${gas})`
+        )
       })
 
       const [, outputExtension] = templateFile.name.split(".")
@@ -146,7 +133,9 @@ describe("end-to-end test suite", () => {
         )
 
         it(`renders correctly for inputs #${inputIndex}`, async () => {
+          const gas = await contract.estimateGas.render(input)
           const result = await contract.render(input)
+          console.log(`Gas for rendering input #${inputIndex}: ${gas}`)
           expect(result).to.equal(expectedOutput)
         })
 

@@ -38,7 +38,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "ethers": "^5.5.2",
     "hardhat": "^2.8.0",
-    "hardhat-gas-reporter": "^1.0.6",
     "rimraf": "^3.0.2",
     "solc": "^0.8.11",
     "ts-node": "^10.4.0",
