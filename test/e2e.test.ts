@@ -84,7 +84,7 @@ describe("end-to-end test suite", () => {
       let contract: Contract
 
       before(async () => {
-        const { contractSource, chunks } = compile(template)
+        const contractSource = compile(template)
 
         writeFileSync(
           path.join(__dirname, "cases", name, "Template.sol"),
@@ -96,6 +96,7 @@ describe("end-to-end test suite", () => {
         if (!solcOutput.contracts) {
           console.error("Solc failed")
           console.error(solcOutput)
+          return
         }
 
         const { abi } = solcOutput.contracts["Template.sol"].Template

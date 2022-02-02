@@ -3,9 +3,13 @@ pragma solidity ^0.8.6;
 import "@rari-capital/solmate/src/utils/SSTORE2.sol";
 
 contract Template {
-  struct Input {
-    string color;
+  struct __Input {
+    Color color;
     string[] words;
+  }
+
+  struct Color {
+    string color;
   }
 
   address private pointer;
