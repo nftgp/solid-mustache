@@ -1,4 +1,6 @@
-import { parse, AST } from "@handlebars/parser"
+import { AST, parse } from "@handlebars/parser"
+import { format } from "prettier"
+import prettierPluginSolidity from "prettier-plugin-solidity"
 
 type UnknownInput = { type: undefined }
 type StringInput = { type: "string" }
@@ -18,14 +20,27 @@ const INPUT_STRUCT_NAME = "__Input"
 const INPUT_VAR_NAME = "__input"
 const RESULT_VAR_NAME = "__result"
 
-export const compile = (template: string): string => {
+interface FormatOptions {
+  printWidth?: number
+  tabWidth?: number
+  useTabs?: boolean
+  singleQuote?: boolean
+  bracketSpacing?: boolean
+  explicitTypes?: "always" | "never" | "preserve"
+}
+
+export const compile = (
+  template: string,
+  options: FormatOptions = {}
+): string => {
   const ast = parse(template)
   const inputsType: StructInput = { type: "struct", members: {} }
 
   const lines = processProgram(ast, {})
   const structDefs = solDefineStruct(inputsType, INPUT_STRUCT_NAME)
 
-  return `
+  return format(
+    `
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity ^0.8.6;
 
@@ -41,7 +56,9 @@ contract Template {
     ${lines.join("\n")}
   }
 }
-`.trim()
+`,
+    { plugins: [prettierPluginSolidity], parser: "solidity-parse", ...options }
+  )
 
   /** AST processing function sharing access to inputsType variable via function scope */
 
@@ -148,7 +165,7 @@ function narrowInput(
   let type = inputsType
 
   const parts = path
-    .split(/(?=[\[])|\./g) // split at . and before [
+    .split(/\.|(?=\[)/g) // split at . and before [
     .slice(1)
 
   parts.forEach((part, i) => {
