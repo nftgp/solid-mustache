@@ -1,11 +1,15 @@
-import { expect } from "chai"
-import { ethers } from "hardhat"
-import "@nomiclabs/hardhat-ethers"
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import path from "path"
-import { compile } from "../src/compile"
-import { Contract } from "ethers"
 
+import { expect } from "chai"
+import { Contract } from "ethers"
+import { ethers } from "hardhat"
+
+import "@nomiclabs/hardhat-ethers"
+
+import { compile } from "../src/compile"
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const solc = require("solc")
 
 function solCompile(contractSource: string) {

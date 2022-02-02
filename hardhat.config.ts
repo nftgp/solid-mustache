@@ -1,6 +1,5 @@
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-waffle";
-import "hardhat-gas-reporter";
+import "@nomiclabs/hardhat-ethers"
+import "hardhat-gas-reporter"
 
 export default {
   paths: {
@@ -28,4 +27,4 @@ export default {
   mocha: {
     timeout: 2000000,
   },
-};
+}
