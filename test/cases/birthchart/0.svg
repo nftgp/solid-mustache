@@ -2,7 +2,7 @@
   version="1.1"
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 2000 3000"
-  style="background: #112222;"
+  style="background: black;"
 >
   <style type="text/css">
     .bc{fill:none;stroke:#8BA0A5;}
@@ -16,10 +16,67 @@
     <line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>
     <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>
     <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>
-    <g style="transform: translate(1000px, 1060px)">
-      <g style="transform: translateX(520) rotateY(40deg);">
-        <circle cx="0" cy="0" r="6.5" fill="white" style="transform: rotateY(-90deg);"></circle>
-      </g>
+    <g transform="translate(1000 1060)">
+        <circle
+          cx="0222"
+          cy="0387"
+          r="6.5"
+          fill="white"
+        ></circle>
+        <circle
+          cx="0000"
+          cy="0000"
+          r="6.5"
+          fill="white"
+        ></circle>
+        <circle
+          cx="0277"
+          cy="0252"
+          r="6.5"
+          fill="white"
+        ></circle>
+        <circle
+          cx="0278"
+          cy="0166"
+          r="6.5"
+          fill="white"
+        ></circle>
+        <circle
+          cx="0326"
+          cy="0142"
+          r="6.5"
+          fill="white"
+        ></circle>
+        <circle
+          cx="0100"
+          cy="0510"
+          r="6.5"
+          fill="white"
+        ></circle>
+        <circle
+          cx="0224"
+          cy="0393"
+          r="6.5"
+          fill="white"
+        ></circle>
+        <circle
+          cx="0000"
+          cy="0000"
+          r="6.5"
+          fill="white"
+        ></circle>
+        <circle
+          cx="0000"
+          cy="0000"
+          r="6.5"
+          fill="white"
+        ></circle>
+        <circle
+          cx="0297"
+          cy="0275"
+          r="6.5"
+          fill="white"
+        ></circle>
     </g>
   </g>
 </svg>

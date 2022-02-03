@@ -118,6 +118,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     if (path.type === "PathExpression") {
       const pathExpr = path as AST.PathExpression
       const fullPath = resolvePath(pathExpr, pathAliases)
+
       narrowInput(inputsType, fullPath, "string")
       return [solStrAppend(fullPath)]
     }
@@ -150,12 +151,11 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     narrowInput(inputsType, iterateeResolvedPath, "array")
 
     // find a unique index var name
-    let i = 0
-    while (pathAliases[`__index_${i}`]) i++
-    const indexVarName = `__index_${i}`
+    let indexVarName = "__i"
+    while (pathAliases[indexVarName]) indexVarName = incrementName(indexVarName)
 
-    const [itemVarName, indexVarAlias = indexVarName] = statement.program
-      .blockParams || ["this", "@index"]
+    const [itemVarName = "this", indexVarAlias = "@index"] =
+      statement.program.blockParams
 
     return [
       `for(uint256 ${indexVarName}; ${indexVarName} < ${iterateeResolvedPath}.length; ${indexVarName}++) {`,
@@ -214,8 +214,12 @@ function narrowInput(
           } field as struct, but the field has been identified as ${type.type}`
         )
       }
-      ;(type as StructInput).members[part] = { type: undefined }
-      type = (type as StructInput).members[part]
+
+      const structType = type as StructInput
+      if (!structType.members[part]) {
+        structType.members[part] = { type: undefined }
+      }
+      type = structType.members[part]
     }
   })
 
@@ -259,9 +263,10 @@ const resolvePath = (
     throw new Error("Sub expressions are not supported")
 
   // everything we haven't aliased must come directly from the input variable
-  const origin = pathAliases[parts[0]] || INPUT_VAR_NAME
+  const origin = pathAliases[parts[0]] || `${INPUT_VAR_NAME}.${parts[0]}`
 
   const joined = parts
+    .slice(1)
     .map((part) => (isNaN(Number(part)) ? `.${part}` : `[${part}]`))
     .join("")
 
@@ -360,8 +365,8 @@ const compatible = (a: InputType, b: InputType): boolean => {
 
 const membersMatch = (a: StructInput, b: StructInput): boolean =>
   a.members.length === b.members.length &&
-  Object.entries(a.members).every(([name, type]) =>
-    compatible(type, b.members[name])
+  Object.entries(a.members).every(
+    ([name, type]) => b.members[name] && compatible(type, b.members[name])
   )
 
 const singularize = (str: string) =>
