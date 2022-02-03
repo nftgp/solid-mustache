@@ -71,7 +71,7 @@ describe("end-to-end test suite", () => {
       let contract: Contract
 
       before(async () => {
-        const contractSource = compile(template)
+        const contractSource = compile(template, { contract: true })
 
         writeFileSync(
           path.join(__dirname, "cases", name, "Template.sol"),
@@ -119,24 +119,28 @@ describe("end-to-end test suite", () => {
           )
         )
 
-        const expectedOutput = readFileSync(
-          path.join(
-            __dirname,
-            "cases",
-            name,
-            `${inputIndex}.${outputExtension}`
-          ),
-          {
-            encoding: "utf8",
-            flag: "r",
-          }
+        const outputPath = path.join(
+          __dirname,
+          "cases",
+          name,
+          `${inputIndex}.${outputExtension}`
         )
 
         it(`renders correctly for inputs #${inputIndex}`, async () => {
           const gas = await contract.estimateGas.render(input)
           const result = await contract.render(input)
           console.log(`Gas for rendering input #${inputIndex}: ${gas}`)
-          expect(result).to.equal(expectedOutput)
+
+          if (existsSync(outputPath)) {
+            const expectedOutput = readFileSync(outputPath, {
+              encoding: "utf8",
+              flag: "r",
+            })
+            expect(result).to.equal(expectedOutput)
+          } else {
+            writeFileSync(outputPath, result)
+            console.log(`Output snapshot written to ${outputPath}`)
+          }
         })
 
         inputIndex++

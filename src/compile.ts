@@ -28,15 +28,23 @@ interface FormatOptions {
   bracketSpacing?: boolean
   explicitTypes?: "always" | "never" | "preserve"
 }
+interface Options {
+  /** Assign a custom name to the library/contract (default: "Template") */
+  name?: string
+  /** Set to true to compile into a contract rather than a library */
+  contract?: boolean
+  /** Formatting options fpr prettier */
+  format?: FormatOptions
+}
 
-export const compile = (
-  template: string,
-  options: FormatOptions = {}
-): string => {
+export const compile = (template: string, options: Options = {}): string => {
   const ast = parse(template)
   const inputsType: StructInput = { type: "struct", members: {} }
 
   const lines = processProgram(ast, {})
+  if (Object.keys(inputsType.members).length === 0) {
+    throw new Error("The template does not use any interpolation.")
+  }
   const structDefs = solDefineStruct(inputsType, INPUT_STRUCT_NAME)
 
   return format(
@@ -44,7 +52,7 @@ export const compile = (
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity ^0.8.6;
 
-contract Template {
+${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
   ${structDefs}
 
@@ -57,7 +65,11 @@ contract Template {
   }
 }
 `,
-    { plugins: [prettierPluginSolidity], parser: "solidity-parse", ...options }
+    {
+      plugins: [prettierPluginSolidity],
+      parser: "solidity-parse",
+      ...options.format,
+    }
   )
 
   /** AST processing function sharing access to inputsType variable via function scope */

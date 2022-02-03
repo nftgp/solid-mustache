@@ -1,0 +1,25 @@
+<svg
+  version="1.1"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 2000 3000"
+  style="background: #112222;"
+>
+  <style type="text/css">
+    .bc{fill:none;stroke:#8BA0A5;}
+  </style>
+  <g>
+    <circle class="bc" cx="1000" cy="1060" r="260"></circle>
+    <circle class="bc" cx="1000" cy="1060" r="360"></circle>
+    <circle class="bc" cx="1000" cy="1060" r="440"></circle>
+    <circle class="bc" cx="1000" cy="1060" r="520"></circle>
+    <line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>
+    <line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>
+    <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>
+    <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>
+    <g style="transform: translate(1000px, 1060px)">
+      <g style="transform: translateX(520) rotateY(40deg);">
+        <circle cx="0" cy="0" r="6.5" fill="white" style="transform: rotateY(-90deg);"></circle>
+      </g>
+    </g>
+  </g>
+</svg>
