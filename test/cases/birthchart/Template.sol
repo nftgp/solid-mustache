@@ -8,6 +8,7 @@ contract Template {
   }
 
   struct __Input {
+    string starsSeed;
     Planet[] planets;
   }
 
@@ -19,7 +20,9 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<svg\n  xmlns="http://www.w3.org/2000/svg"\n  version="1.1"\n  viewBox="0 0 2000 3000"\n  style="background: black;"\n>\n  <style type="text/css">\n    .bc{fill:none;stroke:#8BA0A5;}\n  </style>\n  <g><clipPath id="clip">\n      <!--\n      Everything outside the circle will be\n      clipped and therefore invisible.\n    -->\n      <circle cx="1000" cy="1060" r="520"></circle>\n    </clipPath>\n    <filter id="filter">\n      <feTurbulence baseFrequency="0.1" seed="5"></feTurbulence>\n      <feColorMatrix\n        values="0 0 0 7 -4  0 0 0 7 -4  0 0 0 7 -4  0 0 0 0 1"\n      ></feColorMatrix>\n    </filter>\n    <g clip-path="url(#clip)"><g filter="url(#filter)" transform="scale(2)">\n        <rect width="100%" height="100%"></rect>\n      </g>\n    </g>\n    <circle class="bc" cx="1000" cy="1060" r="260"></circle>\n    <circle class="bc" cx="1000" cy="1060" r="360"></circle>\n    <circle class="bc" cx="1000" cy="1060" r="440"></circle>\n    <circle class="bc" cx="1000" cy="1060" r="520"></circle>\n    <line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>\n    <line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>\n    <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>\n    <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>\n    <g transform="translate(1000 1060)">\n'
+        '<svg\n  xmlns="http://www.w3.org/2000/svg"\n  version="1.1"\n  viewBox="0 0 2000 3000"\n  style="background: #112211;"\n>\n  <style type="text/css">\n    .bc{fill:none;stroke:#8BA0A5;}\n  </style>\n  <g>\n    <filter id="stars">\n      <feTurbulence baseFrequency="0.1" seed="',
+        __input.starsSeed,
+        '"></feTurbulence>\n      <feColorMatrix\n        values="0 0 0 7 -4  0 0 0 7 -4  0 0 0 7 -4  0 0 0 0 1"\n      ></feColorMatrix>\n    </filter>\n    <clipPath id="starsclip">\n      <circle cx="1000" cy="1060" r="520"></circle>\n    </clipPath>\n    <mask id="starsmask">\n      <g filter="url(#stars)" transform="scale(2)">\n        <rect width="100%" height="100%"></rect>\n      </g>\n    </mask>\n    <rect\n      width="100%"\n      height="100%"\n      fill="white"\n      mask="url(#starsmask)"\n      clip-path="url(#starsclip)"\n    ></rect>\n    <circle class="bc" cx="1000" cy="1060" r="260"></circle>\n    <circle class="bc" cx="1000" cy="1060" r="360"></circle>\n    <circle class="bc" cx="1000" cy="1060" r="440"></circle>\n    <circle class="bc" cx="1000" cy="1060" r="520"></circle>\n    <line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>\n    <line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>\n    <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>\n    <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>\n    <g transform="translate(1000 1060)">\n'
       )
     );
     for (uint256 __i; __i < __input.planets.length; __i++) {
