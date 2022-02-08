@@ -4,17 +4,28 @@ import prettierPluginSolidity from "prettier-plugin-solidity"
 
 type UnknownInput = { type: undefined }
 type StringInput = { type: "string" }
+type BoolInput = { type: "bool" }
 type ArrayInput = {
   type: "array"
-  elementType: StringInput | StructInput | ArrayInput | UnknownInput
+  elementType: StringInput | BoolInput | StructInput | ArrayInput | UnknownInput
 }
 type StructInput = {
   type: "struct"
   members: {
-    [field: string]: StringInput | ArrayInput | StructInput | UnknownInput
+    [field: string]:
+      | StringInput
+      | BoolInput
+      | ArrayInput
+      | StructInput
+      | UnknownInput
   }
 }
-type InputType = UnknownInput | StringInput | ArrayInput | StructInput
+type InputType =
+  | UnknownInput
+  | StringInput
+  | BoolInput
+  | ArrayInput
+  | StructInput
 
 const INPUT_STRUCT_NAME = "__Input"
 const INPUT_VAR_NAME = "__input"
@@ -100,7 +111,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     const LIMIT = 16
     const merged: Output[] = []
 
-    output.forEach((out, i) => {
+    output.forEach((out) => {
       if ("line" in out) {
         merged.push(out)
       } else {
@@ -181,7 +192,31 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
       return processEachBlock(statement, pathAliases)
     }
 
-    throw new Error(`Unsupported block statement head: ${head}`)
+    if (statement.params.length > 0) {
+      throw new Error(
+        `Unsupported block statement with params: ${statement.path.original}`
+      )
+    }
+
+    return processConditionalBlock(statement, pathAliases)
+  }
+
+  function processConditionalBlock(
+    statement: AST.BlockStatement,
+    pathAliases: Record<string, string>
+  ): Output[] {
+    const conditionResolvedPath = resolvePath(statement.path, pathAliases)
+    narrowInput(inputsType, conditionResolvedPath, "bool")
+
+    return [
+      {
+        line: `if(${conditionResolvedPath}) {`,
+      },
+      ...processProgram(statement.program, pathAliases),
+      {
+        line: `}`,
+      },
+    ]
   }
 
   function processEachBlock(
@@ -221,7 +256,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 function narrowInput(
   inputsType: InputType,
   path: string, // example: __inputs.member[0].submember
-  narrowed: "string" | "array"
+  narrowed: "string" | "array" | "bool"
 ) {
   let type = inputsType
 
@@ -291,9 +326,9 @@ function narrowInput(
     })
   }
 
-  if (narrowed === "string") {
+  if (narrowed === "string" || narrowed === "bool") {
     Object.assign(type, {
-      type: "string",
+      type: narrowed,
     })
   }
 }
@@ -367,6 +402,9 @@ const solDefineStruct = (
     if (!type.type || type.type === "string") {
       return `string ${name};`
     }
+    if (type.type === "bool") {
+      return `bool ${name};`
+    }
 
     if (type.type === "array") {
       if (type.elementType.type === "array") {
@@ -375,6 +413,9 @@ const solDefineStruct = (
 
       if (!type.elementType.type || type.elementType.type === "string") {
         return `string[] ${name};`
+      }
+      if (type.elementType.type === "bool") {
+        return `bool[] ${name};`
       }
 
       if (type.elementType.type === "struct") {

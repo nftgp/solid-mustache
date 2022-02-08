@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+  <line
+    x1="0"
+    y1="0"
+    x2="200"
+    y2="200"
+    stroke="deeppink"
+    stroke-width="8"
+  ></line>
+    <circle cx="100" cy="100" r="10"></circle>
+</svg>

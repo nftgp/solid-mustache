@@ -111,6 +111,8 @@ describe("end-to-end test suite", () => {
       while (
         existsSync(path.join(__dirname, "cases", name, `${inputIndex}.json`))
       ) {
+        const currentInputIndex = inputIndex
+
         const input = JSON.parse(
           readFileSync(
             path.join(__dirname, "cases", name, `${inputIndex}.json`),
@@ -125,17 +127,17 @@ describe("end-to-end test suite", () => {
           __dirname,
           "cases",
           name,
-          `${inputIndex}.${outputExtension}`
+          `${currentInputIndex}.${outputExtension}`
         )
 
-        it(`renders correctly for inputs #${inputIndex}`, async () => {
+        it(`renders correctly for inputs #${currentInputIndex}`, async () => {
           const gas = await contract.estimateGas.render(input)
           const result = await contract.render(input)
           const percentOfBlockGasLimit = Math.round(
             (gas.toNumber() / 15000000) * 100
           )
           console.log(
-            `Gas for rendering input #${inputIndex}: ${gas} (${percentOfBlockGasLimit}% of block gas limit)`
+            `Gas for rendering input #${currentInputIndex}: ${gas} (${percentOfBlockGasLimit}% of block gas limit)`
           )
 
           if (existsSync(outputPath)) {
