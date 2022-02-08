@@ -33,12 +33,17 @@ interface Options {
   name?: string
   /** Set to true to compile into a contract rather than a library */
   contract?: boolean
-  /** Formatting options fpr prettier */
+  /** Set to true to condense sequences of whitespace into single space, saving some contract size */
+  condenseWhitespace?: boolean
+  /** Formatting options for prettier */
   format?: FormatOptions
 }
 
 export const compile = (template: string, options: Options = {}): string => {
-  const ast = parse(template)
+  const preprocessedTemplate = options.condenseWhitespace
+    ? condenseWhitespace(template)
+    : template
+  const ast = parse(preprocessedTemplate)
   const inputsType: StructInput = { type: "struct", members: {} }
 
   const lines = processProgram(ast, {})
@@ -427,3 +432,5 @@ const incrementName = (str: string) => {
     return `${str.substring(0, i)}${counter + 1}`
   }
 }
+
+const condenseWhitespace = (str: string) => str.replace(/\s+/g, " ")
