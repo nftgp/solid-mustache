@@ -43,7 +43,9 @@ export const compile = (template: string, options: Options = {}): string => {
 
   const lines = processProgram(ast, {})
   if (Object.keys(inputsType.members).length === 0) {
-    throw new Error("The template does not use any interpolation.")
+    throw new Error(
+      "The template file does not contain any template expressions."
+    )
   }
   const structDefs = solDefineStruct(inputsType, INPUT_STRUCT_NAME)
 
@@ -61,7 +63,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     pure
     returns (string memory ${RESULT_VAR_NAME})
   {
-    ${lines.join("\n")}
+    ${lines.map((l) => l.line).join("\n")}
   }
 }
 `,
@@ -74,18 +76,56 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
   /** AST processing function sharing access to inputsType variable via function scope */
 
+  interface CodeLine {
+    line: string
+  }
+  interface AppendStrings {
+    append: string[]
+  }
+  type Output = CodeLine | AppendStrings
+
   function processProgram(
     program: AST.Program,
     pathAliases: Record<string, string>
-  ) {
-    const lines = program.body.map((s) => process(s, pathAliases)).flat()
-    return lines
+  ): CodeLine[] {
+    // generate complete output
+    const output = program.body.map((s) => process(s, pathAliases)).flat()
+
+    // merge appends into single statement until we hit the EVM's stack size limit
+    const LIMIT = 16
+    const merged: Output[] = []
+
+    output.forEach((out, i) => {
+      if ("line" in out) {
+        merged.push(out)
+      } else {
+        const last = merged[merged.length - 1]
+        if (
+          last &&
+          "append" in last &&
+          last.append.length + out.append.length <= LIMIT
+        ) {
+          last.append = last.append.concat(out.append)
+        } else {
+          merged.push(out)
+        }
+      }
+    }, [] as Output[])
+
+    // convert appends to code lines
+    return merged.map((out) => {
+      if ("append" in out) {
+        return { line: solStrAppend(out.append) }
+      } else {
+        return out
+      }
+    })
   }
 
   function process(
     statement: AST.Statement,
     pathAliases: Record<string, string>
-  ): string[] {
+  ): Output[] {
     switch (statement.type) {
       case "ContentStatement":
         return processContentStatement(statement as AST.ContentStatement)
@@ -106,21 +146,21 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     throw new Error(`Unexpected statement type: ${statement.type}`)
   }
 
-  function processContentStatement(statement: AST.ContentStatement) {
-    return [solStrAppend(`"${solEscape(statement.value)}"`)]
+  function processContentStatement(statement: AST.ContentStatement): Output[] {
+    return [{ append: [`"${solEscape(statement.value)}"`] }]
   }
 
   function processMustacheStatement(
     statement: AST.MustacheStatement,
     pathAliases: Record<string, string>
-  ) {
+  ): Output[] {
     const path = statement.path
     if (path.type === "PathExpression") {
       const pathExpr = path as AST.PathExpression
       const fullPath = resolvePath(pathExpr, pathAliases)
 
       narrowInput(inputsType, fullPath, "string")
-      return [solStrAppend(fullPath)]
+      return [{ append: [fullPath] }]
     }
 
     throw new Error(`Unsupported path type: ${statement.path.type}`)
@@ -129,7 +169,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
   function processBlockStatement(
     statement: AST.BlockStatement,
     pathAliases: Record<string, string>
-  ) {
+  ): Output[] {
     const { head } = statement.path
 
     if (head === "each") {
@@ -142,7 +182,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
   function processEachBlock(
     statement: AST.BlockStatement,
     pathAliases: Record<string, string>
-  ) {
+  ): Output[] {
     const path = statement.params[0]
     if (path.type !== "PathExpression") throw new Error("Unsupported")
     const pathExpr = path as AST.PathExpression
@@ -155,16 +195,20 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     while (pathAliases[indexVarName]) indexVarName = incrementName(indexVarName)
 
     const [itemVarName = "this", indexVarAlias = "@index"] =
-      statement.program.blockParams
+      statement.program.blockParams || []
 
     return [
-      `for(uint256 ${indexVarName}; ${indexVarName} < ${iterateeResolvedPath}.length; ${indexVarName}++) {`,
+      {
+        line: `for(uint256 ${indexVarName}; ${indexVarName} < ${iterateeResolvedPath}.length; ${indexVarName}++) {`,
+      },
       ...processProgram(statement.program, {
         ...pathAliases,
         [indexVarAlias]: indexVarName,
         [itemVarName]: `${iterateeResolvedPath}[${indexVarName}]`,
       }),
-      `}`,
+      {
+        line: `}`,
+      },
     ]
   }
 }
@@ -273,8 +317,10 @@ const resolvePath = (
   return `${origin}${joined}`
 }
 
-const solStrAppend = (str: string) =>
-  `${RESULT_VAR_NAME} = string(abi.encodePacked(${RESULT_VAR_NAME}, ${str}));`
+const solStrAppend = (strings: string[]) => {
+  const args = [RESULT_VAR_NAME, ...strings].join(", ")
+  return `${RESULT_VAR_NAME} = string(abi.encodePacked(${args}));`
+}
 
 const solEscape = (str: string) =>
   str

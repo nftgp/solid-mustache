@@ -7,6 +7,7 @@ import { ethers } from "hardhat"
 
 import "@nomiclabs/hardhat-ethers"
 
+import prettierConfig from "../.prettierrc.json"
 import { compile } from "../src/compile"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -71,7 +72,10 @@ describe("end-to-end test suite", () => {
       let contract: Contract
 
       before(async () => {
-        const contractSource = compile(template, { contract: true })
+        const contractSource = compile(template, {
+          contract: true,
+          format: prettierConfig,
+        })
 
         writeFileSync(
           path.join(__dirname, "cases", name, "Template.sol"),
@@ -80,7 +84,7 @@ describe("end-to-end test suite", () => {
 
         const solcOutput = solCompile(contractSource)
 
-        if (!solcOutput.contracts) {
+        if (!solcOutput.contracts || solcOutput.errors) {
           console.error("Solc failed")
           console.error(solcOutput)
           return
@@ -98,9 +102,7 @@ describe("end-to-end test suite", () => {
         const gas = await ethers.provider.estimateGas({ data: deploymentData })
         contract = await factory.deploy()
 
-        console.log(
-          `Successfully deployed template contract (gas cost: ${gas})`
-        )
+        console.log(`Successfully deployed template contract (gas: ${gas})`)
       })
 
       const [, outputExtension] = templateFile.name.split(".")
@@ -129,7 +131,12 @@ describe("end-to-end test suite", () => {
         it(`renders correctly for inputs #${inputIndex}`, async () => {
           const gas = await contract.estimateGas.render(input)
           const result = await contract.render(input)
-          console.log(`Gas for rendering input #${inputIndex}: ${gas}`)
+          const percentOfBlockGasLimit = Math.round(
+            (gas.toNumber() / 15000000) * 100
+          )
+          console.log(
+            `Gas for rendering input #${inputIndex}: ${gas} (${percentOfBlockGasLimit}% of block gas limit)`
+          )
 
           if (existsSync(outputPath)) {
             const expectedOutput = readFileSync(outputPath, {
