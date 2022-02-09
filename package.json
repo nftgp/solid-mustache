@@ -15,7 +15,8 @@
     "fix:prettier": "prettier \"(src|test)/**/*.ts\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
     "test": "mocha",
-    "test:watch": "mocha -w"
+    "test:watch": "mocha -w",
+    "test:update": "UPDATE_SNAPSHOTS=true mocha -w"
   },
   "repository": {
     "type": "git"

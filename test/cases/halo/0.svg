@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 2000 3000">
+  <def>
+    <path
+      d="M58.7687 76.7949C110.299 88.0702 154.043 62.7974 190 0.976313L110 139.54C77.1838 120.42 37.9799 109.915 -3.21719e-05 110.066L-1.0516e-05 70.0661C19.718 70.0595 39.5625 72.3317 58.7687 76.7949Z"
+      fill="#9A9EA7"
+      id="h0"
+    ></path>
+    <circle cx="100" cy="-50" r="20" fill="#9A9EA7" id="h1"></circle>
+  </def>
+  <circle cx="1000" cy="1060" r="5"></circle>
+  <g transform="translate(1000 1060)">
+      <g
+        style="transform: rotate(calc(0 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(1 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(2 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(3 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(4 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(5 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(6 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(7 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(8 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(9 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(10 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(11 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(12 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(13 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(14 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(15 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(16 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(17 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(18 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(19 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(20 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(21 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+      <g
+        style="transform: rotate(calc(22 * 15deg)) translateY(-520px);"
+      >
+        <use href="#h0"></use>
+        
+      </g>
+      <g
+        style="transform: rotate(calc(23 * 15deg)) translateY(-520px);"
+      >
+        
+        <use href="#h1"></use>
+      </g>
+  </g>
+</svg>

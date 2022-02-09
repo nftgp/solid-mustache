@@ -1,6 +1,6 @@
 {
   "spec": ["test/**/*.test.ts"],
-  "watchFiles": ["test/**/*.test.ts", "src/**/*.ts"],
+  "watchFiles": ["test/**/*.test.ts", "test/**/*.hbs", "src/**/*.ts"],
   "require": "ts-node/register",
   "timeout": 20000
 }

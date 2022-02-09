@@ -4,10 +4,17 @@ import prettierPluginSolidity from "prettier-plugin-solidity"
 
 type UnknownInput = { type: undefined }
 type StringInput = { type: "string" }
+type UintInput = { type: "uint" }
 type BoolInput = { type: "bool" }
 type ArrayInput = {
   type: "array"
-  elementType: StringInput | BoolInput | StructInput | ArrayInput | UnknownInput
+  elementType:
+    | StringInput
+    | BoolInput
+    | UintInput
+    | StructInput
+    | ArrayInput
+    | UnknownInput
 }
 type StructInput = {
   type: "struct"
@@ -15,6 +22,7 @@ type StructInput = {
     [field: string]:
       | StringInput
       | BoolInput
+      | UintInput
       | ArrayInput
       | StructInput
       | UnknownInput
@@ -24,6 +32,7 @@ type InputType =
   | UnknownInput
   | StringInput
   | BoolInput
+  | UintInput
   | ArrayInput
   | StructInput
 
@@ -57,7 +66,8 @@ export const compile = (template: string, options: Options = {}): string => {
   const ast = parse(preprocessedTemplate)
   const inputsType: StructInput = { type: "struct", members: {} }
 
-  const lines = processProgram(ast, {})
+  const lines = processProgram(ast, new Scope())
+
   if (Object.keys(inputsType.members).length === 0) {
     throw new Error(
       "The template file does not contain any template expressions."
@@ -81,6 +91,8 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
   {
     ${lines.map((l) => l.line).join("\n")}
   }
+
+  ${SOL_UINT2STR}
 }
 `,
     {
@@ -100,12 +112,9 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
   }
   type Output = CodeLine | AppendStrings
 
-  function processProgram(
-    program: AST.Program,
-    pathAliases: Record<string, string>
-  ): CodeLine[] {
+  function processProgram(program: AST.Program, scope: Scope): CodeLine[] {
     // generate complete output
-    const output = program.body.map((s) => process(s, pathAliases)).flat()
+    const output = program.body.map((s) => process(s, scope)).flat()
 
     // merge appends into single statement until we hit the EVM's stack size limit
     const LIMIT = 16
@@ -138,10 +147,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     })
   }
 
-  function process(
-    statement: AST.Statement,
-    pathAliases: Record<string, string>
-  ): Output[] {
+  function process(statement: AST.Statement, scope: Scope): Output[] {
     switch (statement.type) {
       case "ContentStatement":
         return processContentStatement(statement as AST.ContentStatement)
@@ -149,14 +155,11 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
       case "MustacheStatement":
         return processMustacheStatement(
           statement as AST.MustacheStatement,
-          pathAliases
+          scope
         )
 
       case "BlockStatement":
-        return processBlockStatement(
-          statement as AST.BlockStatement,
-          pathAliases
-        )
+        return processBlockStatement(statement as AST.BlockStatement, scope)
     }
 
     throw new Error(`Unexpected statement type: ${statement.type}`)
@@ -168,28 +171,36 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
   function processMustacheStatement(
     statement: AST.MustacheStatement,
-    pathAliases: Record<string, string>
+    scope: Scope
   ): Output[] {
-    const path = statement.path
-    if (path.type === "PathExpression") {
-      const pathExpr = path as AST.PathExpression
-      const fullPath = resolvePath(pathExpr, pathAliases)
+    if (statement.path.type !== "PathExpression") {
+      throw new Error(`Unsupported path type: ${statement.path.type}`)
+    }
 
+    const path = statement.path as AST.PathExpression
+    if (path.original === "uint2str") {
+      const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
+      narrowInput(inputsType, fullPath, "uint")
+      return [{ append: [`uint2str(${fullPath})`] }]
+    } else {
+      const fullPath = scope.resolve(path)
       narrowInput(inputsType, fullPath, "string")
       return [{ append: [fullPath] }]
     }
-
-    throw new Error(`Unsupported path type: ${statement.path.type}`)
   }
 
   function processBlockStatement(
     statement: AST.BlockStatement,
-    pathAliases: Record<string, string>
+    scope: Scope
   ): Output[] {
     const { head } = statement.path
 
     if (head === "each") {
-      return processEachBlock(statement, pathAliases)
+      return processEachBlock(statement, scope)
+    }
+
+    if (head === "if") {
+      return processConditionalBlock(statement, scope)
     }
 
     if (statement.params.length > 0) {
@@ -198,21 +209,24 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
       )
     }
 
-    return processConditionalBlock(statement, pathAliases)
+    return processConditionalBlock(statement, scope)
   }
 
   function processConditionalBlock(
     statement: AST.BlockStatement,
-    pathAliases: Record<string, string>
+    scope: Scope
   ): Output[] {
-    const conditionResolvedPath = resolvePath(statement.path, pathAliases)
+    const path = (
+      statement.path.original === "if" ? statement.params[0] : statement.path
+    ) as AST.PathExpression
+    const conditionResolvedPath = scope.resolve(path)
     narrowInput(inputsType, conditionResolvedPath, "bool")
 
     return [
       {
         line: `if(${conditionResolvedPath}) {`,
       },
-      ...processProgram(statement.program, pathAliases),
+      ...processProgram(statement.program, scope),
       {
         line: `}`,
       },
@@ -221,31 +235,34 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
   function processEachBlock(
     statement: AST.BlockStatement,
-    pathAliases: Record<string, string>
+    scope: Scope
   ): Output[] {
     const path = statement.params[0]
     if (path.type !== "PathExpression") throw new Error("Unsupported")
     const pathExpr = path as AST.PathExpression
 
-    const iterateeResolvedPath = resolvePath(pathExpr, pathAliases)
+    const iterateeResolvedPath = scope.resolve(pathExpr)
     narrowInput(inputsType, iterateeResolvedPath, "array")
 
     // find a unique index var name
     let indexVarName = "__i"
-    while (pathAliases[indexVarName]) indexVarName = incrementName(indexVarName)
+    while (scope.varNames.includes(indexVarName))
+      indexVarName = incrementName(indexVarName)
+    scope.addVar(indexVarName)
 
-    const [itemVarName = "this", indexVarAlias = "@index"] =
+    const [itemVarAlias = "this", indexVarAlias = "@index"] =
       statement.program.blockParams || []
+
+    const newScope = scope.dive(`${iterateeResolvedPath}[${indexVarName}]`, {
+      [indexVarAlias]: indexVarName,
+      [itemVarAlias]: `${iterateeResolvedPath}[${indexVarName}]`,
+    })
 
     return [
       {
         line: `for(uint256 ${indexVarName}; ${indexVarName} < ${iterateeResolvedPath}.length; ${indexVarName}++) {`,
       },
-      ...processProgram(statement.program, {
-        ...pathAliases,
-        [indexVarAlias]: indexVarName,
-        [itemVarName]: `${iterateeResolvedPath}[${indexVarName}]`,
-      }),
+      ...processProgram(statement.program, newScope),
       {
         line: `}`,
       },
@@ -253,16 +270,108 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
   }
 }
 
+interface Scope {
+  /** Keeps track of all Solidity variable names */
+  varNames: string[]
+  aliases: Record<string, string>
+  parent?: Scope
+}
+
+class Scope {
+  path: string
+  /** Keeps track of all Solidity variable names */
+  varNames: string[]
+  aliases: Record<string, string>
+  parent?: Scope
+
+  constructor(
+    path = `${INPUT_VAR_NAME}`,
+    varNames = [INPUT_VAR_NAME],
+    aliases = {},
+    parent?: Scope
+  ) {
+    this.path = path
+    this.varNames = varNames
+    this.aliases = aliases
+    this.parent = parent
+  }
+
+  addVar(name: string) {
+    this.varNames.push(name)
+  }
+
+  resolve(path: AST.PathExpression): string {
+    const { parts, original, depth } = path
+
+    if (depth > 0) {
+      let upperScope: Scope
+      try {
+        upperScope = this.climb(depth)
+      } catch (e) {
+        throw new Error(`Path expression ${original} has excessive depth`)
+      }
+      return upperScope.resolve({
+        ...path,
+        depth: 0,
+        original: path.original.slice(3),
+      })
+    }
+
+    if (original === "." || original === "this") {
+      return this.path
+    }
+
+    const BUILT_IN_ALIASES = ["@index"]
+    if (BUILT_IN_ALIASES.includes(original)) {
+      return this.aliases[original]
+    }
+
+    if (typeof parts[0] !== "string")
+      throw new Error(`Unsupported path expression: ${original}`)
+
+    // everything we haven't aliased must come from the current scope, so we prefix with path
+    const origin = this.aliases[parts[0]] || `${this.path}.${parts[0]}`
+
+    const joined = parts
+      .slice(1)
+      .map((part) => (isNaN(Number(part)) ? `.${part}` : `[${part}]`))
+      .join("")
+
+    return `${origin}${joined}`
+  }
+
+  dive(path: string, newAliases = {}) {
+    return new Scope(
+      path,
+      this.varNames,
+      { ...this.aliases, ...newAliases },
+      this
+    )
+  }
+
+  climb(depth: number) {
+    let result: Scope = this
+    for (let i = 0; i < depth; i++) {
+      if (!result.parent) {
+        throw new Error("depth exceeded")
+      }
+      result = result.parent
+    }
+    return result
+  }
+}
+
 function narrowInput(
   inputsType: InputType,
   path: string, // example: __inputs.member[0].submember
-  narrowed: "string" | "array" | "bool"
+  narrowed: "string" | "array" | "bool" | "uint"
 ) {
   let type = inputsType
 
-  const parts = path
-    .split(/\.|(?=\[)/g) // split at . and before [
-    .slice(1)
+  const [prefix, ...parts] = path.split(/\.|(?=\[)/g) // split at . and before [
+
+  // local vars can't be narrowed
+  if (prefix !== INPUT_VAR_NAME) return
 
   parts.forEach((part, i) => {
     if (typeof part !== "string")
@@ -326,35 +435,11 @@ function narrowInput(
     })
   }
 
-  if (narrowed === "string" || narrowed === "bool") {
+  if (narrowed === "string" || narrowed === "bool" || narrowed === "uint") {
     Object.assign(type, {
       type: narrowed,
     })
   }
-}
-
-const resolvePath = (
-  path: AST.PathExpression,
-  pathAliases: Record<string, string>
-) => {
-  const { parts, original } = path
-
-  if (original === "this") {
-    return pathAliases.this
-  }
-
-  if (typeof parts[0] !== "string")
-    throw new Error("Sub expressions are not supported")
-
-  // everything we haven't aliased must come directly from the input variable
-  const origin = pathAliases[parts[0]] || `${INPUT_VAR_NAME}.${parts[0]}`
-
-  const joined = parts
-    .slice(1)
-    .map((part) => (isNaN(Number(part)) ? `.${part}` : `[${part}]`))
-    .join("")
-
-  return `${origin}${joined}`
 }
 
 const solStrAppend = (strings: string[]) => {
@@ -399,35 +484,27 @@ const solDefineStruct = (
   }
 
   const fieldDefs = Object.entries(type.members).map(([name, type]) => {
-    if (!type.type || type.type === "string") {
-      return `string ${name};`
-    }
-    if (type.type === "bool") {
-      return `bool ${name};`
-    }
-
     if (type.type === "array") {
       if (type.elementType.type === "array") {
         throw new Error("Multi-dimensional arrays are not supported in ABI")
-      }
-
-      if (!type.elementType.type || type.elementType.type === "string") {
-        return `string[] ${name};`
-      }
-      if (type.elementType.type === "bool") {
-        return `bool[] ${name};`
       }
 
       if (type.elementType.type === "struct") {
         const structName = useExistingOrAdd(singularize(name), type.elementType)
         return `${structName}[] ${name};`
       }
+
+      const elementTypeName = type.elementType.type || "string"
+      return `${elementTypeName}[] ${name};`
     }
 
     if (type.type === "struct") {
       const structName = useExistingOrAdd(name, type)
       return `${structName} ${name};`
     }
+
+    const typeName = type.type || "string"
+    return `${typeName} ${name};`
   })
 
   const structDefs = Object.entries(newStructDefs).map(([name, type]) =>
@@ -441,6 +518,28 @@ const solDefineStruct = (
     ${fieldDefs.join("\n")}
   }`.trim()
 }
+
+const SOL_UINT2STR = `function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+  if (_i == 0) {
+      return "0";
+  }
+  uint j = _i;
+  uint len;
+  while (j != 0) {
+      len++;
+      j /= 10;
+  }
+  bytes memory bstr = new bytes(len);
+  uint k = len;
+  while (_i != 0) {
+      k = k-1;
+      uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+      bytes1 b1 = bytes1(temp);
+      bstr[k] = b1;
+      _i /= 10;
+  }
+  return string(bstr);
+}`
 
 const compatible = (a: InputType, b: InputType): boolean => {
   if (!a.type || !b.type) return true

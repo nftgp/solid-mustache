@@ -38,66 +38,16 @@
     <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>
     <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>
     <g transform="translate(1000 1060)">
-        <circle
-          cx="0176"
-          cy="0486"
-          r="6.5"
-          fill="white"
-        ></circle>
-        <circle
-          cx="0000"
-          cy="0000"
-          r="6.5"
-          fill="white"
-        ></circle>
-        <circle
-          cx="0250"
-          cy="0356"
-          r="6.5"
-          fill="white"
-        ></circle>
-        <circle
-          cx="0259"
-          cy="0271"
-          r="6.5"
-          fill="white"
-        ></circle>
-        <circle
-          cx="0311"
-          cy="0247"
-          r="6.5"
-          fill="white"
-        ></circle>
-        <circle
-          cx="0000"
-          cy="0000"
-          r="6.5"
-          fill="white"
-        ></circle>
-        <circle
-          cx="0000"
-          cy="0000"
-          r="6.5"
-          fill="white"
-        ></circle>
-        <circle
-          cx="0000"
-          cy="0000"
-          r="6.5"
-          fill="white"
-        ></circle>
-        <circle
-          cx="0000"
-          cy="0000"
-          r="6.5"
-          fill="white"
-        ></circle>
-        <circle
-          cx="0270"
-          cy="0379"
-          r="6.5"
-          fill="white"
-        ></circle>
+        <circle cx="0176" cy="0486" r="13" fill="white"></circle>
+        <circle cx="0000" cy="0000" r="13" fill="white"></circle>
+        <circle cx="0250" cy="0356" r="13" fill="white"></circle>
+        <circle cx="0259" cy="0271" r="13" fill="white"></circle>
+        <circle cx="0311" cy="0247" r="13" fill="white"></circle>
+        <circle cx="0000" cy="0000" r="13" fill="white"></circle>
+        <circle cx="0000" cy="0000" r="13" fill="white"></circle>
+        <circle cx="0000" cy="0000" r="13" fill="white"></circle>
+        <circle cx="0000" cy="0000" r="13" fill="white"></circle>
+        <circle cx="0270" cy="0379" r="13" fill="white"></circle>
     </g>
   </g>
 </svg>

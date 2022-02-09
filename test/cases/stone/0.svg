@@ -1,0 +1,23 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  version="1.1"
+  viewBox="0 0 2000 3000"
+  style="background: #112211;"
+>
+  <clipPath id="stoneclip">
+    <circle cx="1000" cy="1060" r="262" />
+  </clipPath>
+  <filter id="texture">
+    <feTurbulence baseFrequency="0.005 0.01" numOctaves="3" />
+    <feDiffuseLighting lighting-color="crimson" surfaceScale="10">
+      <feDistantLight elevation="60" />
+    </feDiffuseLighting>
+    <feComposite operator="in" in2="SourceGraphic"/>
+  </filter>
+  <radialGradient id="stoneshadow">
+    <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>
+    <stop offset="90%" stop-color="hsla(0, 0%, 0%, 1)"></stop>
+  </radialGradient>
+  <circle cx="1000" cy="1060" r="260" filter="url(#texture)" />
+  <circle cx="800" cy="1060" r="520" fill="url(#stoneshadow)" clip-path="url(#stoneclip)"/>
+</svg>

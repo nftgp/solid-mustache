@@ -94,12 +94,21 @@ describe("end-to-end test suite", () => {
         const bytecode =
           solcOutput.contracts["Template.sol"].Template.evm.bytecode.object
 
-        console.log("Successfully compiled Template.sol to bytecode")
+        const size = computeBytecodeSizeInKiB(bytecode)
+        const MAX_CONTRACT_SIZE = 24
+
+        console.log(
+          `Successfully compiled Template.sol to bytecode (size: ${Math.round(
+            size
+          )} KiB, ${Math.round(size / MAX_CONTRACT_SIZE)}% of limit)`
+        )
 
         const [signer] = await ethers.getSigners()
         const factory = new ethers.ContractFactory(abi, bytecode, signer)
-        const deploymentData = factory.interface.encodeDeploy()
-        const gas = await ethers.provider.estimateGas({ data: deploymentData })
+        // const deploymentData = factory.interface.encodeDeploy()
+        const gas = await ethers.provider.estimateGas(
+          factory.getDeployTransaction()
+        )
         contract = await factory.deploy()
 
         console.log(`Successfully deployed template contract (gas: ${gas})`)
@@ -140,7 +149,7 @@ describe("end-to-end test suite", () => {
             `Gas for rendering input #${currentInputIndex}: ${gas} (${percentOfBlockGasLimit}% of block gas limit)`
           )
 
-          if (existsSync(outputPath)) {
+          if (!process.env.UPDATE_SNAPSHOTS && existsSync(outputPath)) {
             const expectedOutput = readFileSync(outputPath, {
               encoding: "utf8",
               flag: "r",
@@ -157,3 +166,10 @@ describe("end-to-end test suite", () => {
     })
   })
 })
+
+function computeBytecodeSizeInKiB(bytecode: string) {
+  // -2 to remove 0x from the beginning of the string
+  // /2 because one byte consists of two hexadecimal values
+  // /1024 to convert to size from byte to kibibytes
+  return (bytecode.length - 2) / 2 / 1024
+}

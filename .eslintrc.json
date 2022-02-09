@@ -20,6 +20,7 @@
     "sort-imports": [
       "error",
       { "ignoreDeclarationSort": true, "ignoreCase": true }
-    ]
+    ],
+    "@typescript-eslint/no-this-alias": "off"
   }
 }

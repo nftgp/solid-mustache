@@ -38,13 +38,8 @@
     <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>
     <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>
     <g transform="translate(1000 1060)">
-      {{#each planets as |planet|}}
-        <circle
-          cx="{{planet.x}}"
-          cy="{{planet.y}}"
-          r="6.5"
-          fill="white"
-        ></circle>
+      {{#each planets}}
+        <circle cx="{{x}}" cy="{{y}}" r="13" fill="white"></circle>
       {{/each}}
     </g>
   </g>
