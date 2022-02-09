@@ -7,5 +7,5 @@
     stroke="deeppink"
     stroke-width="8"
   ></line>
-    <circle cx="100" cy="100" r="10"></circle>
+    <circle cx="100" cy="100" r="10" />
 </svg>

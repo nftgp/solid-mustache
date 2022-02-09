@@ -11,4 +11,5 @@
     <text x="100" y="20" fill="deeppink">Hello</text>
     <text x="20" y="20">world!</text>
     <text x="100" y="20" fill="deeppink">world!</text>
+    <rect x1="100" y1="100" x2="110" y2="110" />
 </svg>

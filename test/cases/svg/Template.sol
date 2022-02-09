@@ -38,9 +38,15 @@ contract Template {
     __result = string(abi.encodePacked(__result, ""));
     if (__input.showCircle) {
       __result = string(
+        abi.encodePacked(__result, '    <circle cx="100" cy="100" r="10" />\n')
+      );
+    }
+    __result = string(abi.encodePacked(__result, ""));
+    if (!__input.showCircle) {
+      __result = string(
         abi.encodePacked(
           __result,
-          '    <circle cx="100" cy="100" r="10"></circle>\n'
+          '    <rect x1="100" y1="100" x2="110" y2="110" />\n'
         )
       );
     }

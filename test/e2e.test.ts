@@ -36,12 +36,16 @@ function solCompile(contractSource: string) {
 }
 
 describe("end-to-end test suite", () => {
-  const cases = readdirSync(path.join(__dirname, "cases"), {
+  let cases = readdirSync(path.join(__dirname, "cases"), {
     withFileTypes: true,
   })
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name)
     .filter((name) => !name.endsWith(".skip"))
+
+  if (cases.some((name) => name.endsWith(".only"))) {
+    cases = cases.filter((name) => name.endsWith(".only"))
+  }
 
   cases.forEach((name) => {
     describe(name, () => {

@@ -202,6 +202,9 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     if (head === "if") {
       return processConditionalBlock(statement, scope)
     }
+    if (head === "unless") {
+      return processConditionalBlock(statement, scope, true)
+    }
 
     if (statement.params.length > 0) {
       throw new Error(
@@ -214,17 +217,19 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
   function processConditionalBlock(
     statement: AST.BlockStatement,
-    scope: Scope
+    scope: Scope,
+    negate?: boolean
   ): Output[] {
     const path = (
-      statement.path.original === "if" ? statement.params[0] : statement.path
+      statement.params.length === 0 ? statement.path : statement.params[0]
     ) as AST.PathExpression
+
     const conditionResolvedPath = scope.resolve(path)
     narrowInput(inputsType, conditionResolvedPath, "bool")
 
     return [
       {
-        line: `if(${conditionResolvedPath}) {`,
+        line: `if(${negate ? "!" : ""}${conditionResolvedPath}) {`,
       },
       ...processProgram(statement.program, scope),
       {
