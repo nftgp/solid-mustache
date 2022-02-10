@@ -2,13 +2,13 @@
 pragma solidity ^0.8.6;
 
 contract Template {
+  struct __Input {
+    Rhythm[] rhythm;
+  }
+
   struct Rhythm {
     bool halo0;
     bool halo1;
-  }
-
-  struct __Input {
-    Rhythm[] rhythm;
   }
 
   function render(__Input memory __input)
@@ -43,11 +43,7 @@ contract Template {
     __result = string(abi.encodePacked(__result, "  </g>\n</svg>"));
   }
 
-  function uint2str(uint256 _i)
-    internal
-    pure
-    returns (string memory _uintAsString)
-  {
+  function uint2str(uint256 _i) internal pure returns (string memory) {
     if (_i == 0) {
       return "0";
     }

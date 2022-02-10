@@ -2,14 +2,14 @@
 pragma solidity ^0.8.6;
 
 contract Template {
-  struct Planet {
-    string x;
-    string y;
-  }
-
   struct __Input {
     string starsSeed;
     Planet[] planets;
+  }
+
+  struct Planet {
+    string x;
+    string y;
   }
 
   function render(__Input memory __input)
@@ -40,11 +40,7 @@ contract Template {
     __result = string(abi.encodePacked(__result, "    </g>\n  </g>\n</svg>"));
   }
 
-  function uint2str(uint256 _i)
-    internal
-    pure
-    returns (string memory _uintAsString)
-  {
+  function uint2str(uint256 _i) internal pure returns (string memory) {
     if (_i == 0) {
       return "0";
     }

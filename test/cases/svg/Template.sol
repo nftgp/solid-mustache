@@ -53,11 +53,7 @@ contract Template {
     __result = string(abi.encodePacked(__result, "</svg>"));
   }
 
-  function uint2str(uint256 _i)
-    internal
-    pure
-    returns (string memory _uintAsString)
-  {
+  function uint2str(uint256 _i) internal pure returns (string memory) {
     if (_i == 0) {
       return "0";
     }

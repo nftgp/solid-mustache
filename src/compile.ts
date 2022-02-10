@@ -36,6 +36,20 @@ type InputType =
   | ArrayInput
   | StructInput
 
+interface Partial {
+  name: string
+  lines: CodeLine[]
+  inputType: InputType
+}
+
+interface CodeLine {
+  line: string
+}
+interface AppendStrings {
+  append: string[]
+}
+type Output = CodeLine | AppendStrings
+
 const INPUT_STRUCT_NAME = "__Input"
 const INPUT_VAR_NAME = "__input"
 const RESULT_VAR_NAME = "__result"
@@ -53,6 +67,8 @@ interface Options {
   name?: string
   /** Set to true to compile into a contract rather than a library */
   contract?: boolean
+  /** Allows providing additional templates that can be used via partial expressions */
+  partials?: Record<string, string>
   /** Set to true to condense sequences of whitespace into single space, saving some contract size */
   condenseWhitespace?: boolean
   /** Formatting options for prettier */
@@ -64,7 +80,9 @@ export const compile = (template: string, options: Options = {}): string => {
     ? condenseWhitespace(template)
     : template
   const ast = parse(preprocessedTemplate)
+
   const inputsType: StructInput = { type: "struct", members: {} }
+  const usedPartials: Partial[] = []
 
   const lines = processProgram(ast, new Scope())
 
@@ -73,10 +91,15 @@ export const compile = (template: string, options: Options = {}): string => {
       "The template file does not contain any template expressions."
     )
   }
-  const structDefs = solDefineStruct(inputsType, INPUT_STRUCT_NAME)
 
-  return format(
-    `
+  const typeNames = generateTypeNames(inputsType)
+  const structDefs = solDefineStructs(typeNames)
+
+  const partialDefs = usedPartials
+    .map((partial) => solDefinePartial(partial, typeNames))
+    .join("\n\n")
+
+  const solidityCode = `
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity ^0.8.6;
 
@@ -92,25 +115,18 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     ${lines.map((l) => l.line).join("\n")}
   }
 
+  ${partialDefs}
+
   ${SOL_UINT2STR}
 }
-`,
-    {
-      plugins: [prettierPluginSolidity],
-      parser: "solidity-parse",
-      ...options.format,
-    }
-  )
+`
+  return format(solidityCode, {
+    plugins: [prettierPluginSolidity],
+    parser: "solidity-parse",
+    ...options.format,
+  })
 
-  /** AST processing function sharing access to inputsType variable via function scope */
-
-  interface CodeLine {
-    line: string
-  }
-  interface AppendStrings {
-    append: string[]
-  }
-  type Output = CodeLine | AppendStrings
+  /** AST processing function sharing access to inputsType and partialScopes variables via JS function scope */
 
   function processProgram(program: AST.Program, scope: Scope): CodeLine[] {
     // generate complete output
@@ -358,7 +374,7 @@ class Scope {
     let result: Scope = this
     for (let i = 0; i < depth; i++) {
       if (!result.parent) {
-        throw new Error("depth exceeded")
+        throw new Error("excessive path expression depth")
       }
       result = result.parent
     }
@@ -463,68 +479,109 @@ const solEscape = (str: string) =>
     .replace(/\t/g, "\\t")
     .replace(/\v/g, "\\v")
 
-const solDefineStruct = (
-  type: StructInput,
-  name: string,
-  definedStructs: { [name: string]: StructInput } = {}
-): string => {
-  const newStructDefs: { [name: string]: StructInput } = {}
-
-  const useExistingOrAdd = (fieldName: string, fieldType: StructInput) => {
-    const existingStruct = Object.entries(definedStructs).find(([, t]) =>
-      compatible(t, fieldType)
+type TypeName = { name: string; inputType: InputType }
+const generateTypeNames = (
+  structInput: StructInput,
+  result: TypeName[] = [{ name: INPUT_STRUCT_NAME, inputType: structInput }]
+): TypeName[] => {
+  const useExistingOrAddStruct = (
+    fieldName: string,
+    fieldType: StructInput
+  ) => {
+    const existingStruct = result.find((existing) =>
+      compatible(existing.inputType, fieldType)
     )
 
     let structName = existingStruct
-      ? existingStruct[0]
+      ? existingStruct.name
       : fieldName[0].toUpperCase() + fieldName.substring(1)
 
     if (!existingStruct) {
-      while (definedStructs[structName]) structName = incrementName(structName)
-      newStructDefs[structName] = fieldType
-      definedStructs[structName] = fieldType
+      while (result.some(({ name }) => name === structName))
+        structName = incrementName(structName)
     }
 
+    result.push({ name: structName, inputType: fieldType })
     return structName
   }
 
-  const fieldDefs = Object.entries(type.members).map(([name, type]) => {
-    if (type.type === "array") {
-      if (type.elementType.type === "array") {
+  Object.entries(structInput.members).forEach(([name, memberType]) => {
+    if (memberType.type === "array") {
+      if (memberType.elementType.type === "array") {
         throw new Error("Multi-dimensional arrays are not supported in ABI")
       }
 
-      if (type.elementType.type === "struct") {
-        const structName = useExistingOrAdd(singularize(name), type.elementType)
-        return `${structName}[] ${name};`
+      if (memberType.elementType.type === "struct") {
+        const structName = useExistingOrAddStruct(
+          singularize(name),
+          memberType.elementType
+        )
+        result.push({
+          name: `${structName}[]`,
+          inputType: memberType,
+        })
+        generateTypeNames(memberType.elementType, result)
+      } else {
+        const elementTypeName = memberType.elementType.type || "string"
+        result.push({
+          name: `${elementTypeName}[]`,
+          inputType: memberType,
+        })
       }
-
-      const elementTypeName = type.elementType.type || "string"
-      return `${elementTypeName}[] ${name};`
+    } else if (memberType.type === "struct") {
+      const structName = useExistingOrAddStruct(name, memberType)
+      result.push({
+        name: structName,
+        inputType: memberType,
+      })
+      generateTypeNames(memberType, result)
+    } else {
+      result.push({
+        name: memberType.type || "string",
+        inputType: memberType,
+      })
     }
-
-    if (type.type === "struct") {
-      const structName = useExistingOrAdd(name, type)
-      return `${structName} ${name};`
-    }
-
-    const typeName = type.type || "string"
-    return `${typeName} ${name};`
   })
 
-  const structDefs = Object.entries(newStructDefs).map(([name, type]) =>
-    solDefineStruct(type, name, definedStructs)
-  )
-
-  return `
-  ${structDefs.join("\n\n")}
-
-  struct ${name} {
-    ${fieldDefs.join("\n")}
-  }`.trim()
+  return result
 }
 
-const SOL_UINT2STR = `function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+const findTypeName = (typeNames: TypeName[], type: InputType) =>
+  typeNames.find((typeName) => typeName.inputType === type)?.name
+
+const solDefineStructs = (typeNames: TypeName[]): string => {
+  const uniqueStructs = typeNames.filter(
+    ({ name, inputType }, index) =>
+      inputType.type === "struct" &&
+      typeNames.findIndex((tn) => tn.name === name) === index
+  )
+
+  const structDefs = uniqueStructs.map(({ name, inputType }) => {
+    const struct = inputType as StructInput
+    const fieldDefs = Object.entries(struct.members).map(
+      ([name, type]) => `${findTypeName(typeNames, type)} ${name};`
+    )
+    return `
+    struct ${name} {
+      ${fieldDefs.join("\n")}
+    }
+    `
+  })
+
+  return structDefs.join("\n\n")
+}
+
+const solDefinePartial = (partial: Partial, typeNames: TypeName[]) => {
+  const { name, lines, inputType } = partial
+  const typeName = findTypeName(typeNames, inputType)
+  return `
+  function ${name}(${typeName} ${INPUT_VAR_NAME}) internal pure returns (string memory ${RESULT_VAR_NAME}) {
+    ${lines.map((l) => l.line).join("\n")}
+  }
+  `
+}
+
+const SOL_UINT2STR = `function uint2str(uint _i) internal pure returns (string memory) {
   if (_i == 0) {
       return "0";
   }
