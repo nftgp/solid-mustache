@@ -9,7 +9,14 @@
   ></line>
     <text x="20" y="20">Hello</text>
     <text x="100" y="20" fill="deeppink">Hello</text>
-    <text x="20" y="20">world!</text>
+
+<text x="200" y="200">Hello</text>
+<text x="300" y="300">sub: Hello</text><text x="200" y="200">deeppink</text>
+<text x="300" y="300">sub: deeppink</text>    <text x="20" y="20">world!</text>
     <text x="100" y="20" fill="deeppink">world!</text>
-    <rect x1="100" y1="100" x2="110" y2="110" />
+
+<text x="200" y="200">world!</text>
+<text x="300" y="300">sub: world!</text><text x="200" y="200">deeppink</text>
+<text x="300" y="300">sub: deeppink</text>    <rect x1="100" y1="100" x2="110" y2="110" />
+
 </svg>

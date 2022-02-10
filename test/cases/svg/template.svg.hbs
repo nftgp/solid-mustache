@@ -10,6 +10,9 @@
   {{#each words}}
     <text x="20" y="20">{{this}}</text>
     <text x="100" y="20" fill="{{../color}}">{{.}}</text>
+
+    {{> text . }}
+    {{> text ../color }}
   {{/each}}
   {{#showCircle}}
     <circle cx="100" cy="100" r="10" />
@@ -17,4 +20,5 @@
   {{#unless showCircle}}
     <rect x1="100" y1="100" x2="110" y2="110" />
   {{/unless}}
+
 </svg>

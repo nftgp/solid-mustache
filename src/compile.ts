@@ -81,21 +81,25 @@ export const compile = (template: string, options: Options = {}): string => {
     : template
   const ast = parse(preprocessedTemplate)
 
-  const inputsType: StructInput = { type: "struct", members: {} }
+  const scope = new Scope()
   const usedPartials: Partial[] = []
 
-  const lines = processProgram(ast, new Scope())
+  const lines = processProgram(ast, scope)
 
-  if (Object.keys(inputsType.members).length === 0) {
+  if (scope.inputType.type !== "struct") {
+    throw new Error("Unexpected input type")
+  }
+  if (Object.keys(scope.inputType.members).length === 0) {
     throw new Error(
       "The template file does not contain any template expressions."
     )
   }
 
-  const typeNames = generateTypeNames(inputsType)
+  const typeNames = generateTypeNames(scope.inputType)
   const structDefs = solDefineStructs(typeNames)
 
   const partialDefs = usedPartials
+    .reverse()
     .map((partial) => solDefinePartial(partial, typeNames))
     .join("\n\n")
 
@@ -126,11 +130,11 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     ...options.format,
   })
 
-  /** AST processing function sharing access to inputsType and partialScopes variables via JS function scope */
+  /** AST processing function sharing access to options and usedPartials variables via JS function scope */
 
   function processProgram(program: AST.Program, scope: Scope): CodeLine[] {
     // generate complete output
-    const output = program.body.map((s) => process(s, scope)).flat()
+    const output = program.body.map((s) => processStatement(s, scope)).flat()
 
     // merge appends into single statement until we hit the EVM's stack size limit
     const LIMIT = 16
@@ -163,7 +167,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     })
   }
 
-  function process(statement: AST.Statement, scope: Scope): Output[] {
+  function processStatement(statement: AST.Statement, scope: Scope): Output[] {
     switch (statement.type) {
       case "ContentStatement":
         return processContentStatement(statement as AST.ContentStatement)
@@ -176,6 +180,12 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
       case "BlockStatement":
         return processBlockStatement(statement as AST.BlockStatement, scope)
+
+      case "PartialStatement":
+        return processPartialStatement(statement as AST.PartialStatement, scope)
+
+      case "CommentStatement":
+        return []
     }
 
     throw new Error(`Unexpected statement type: ${statement.type}`)
@@ -196,11 +206,11 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     const path = statement.path as AST.PathExpression
     if (path.original === "uint2str") {
       const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
-      narrowInput(inputsType, fullPath, "uint")
+      narrowInput(scope.inputType, fullPath, "uint")
       return [{ append: [`uint2str(${fullPath})`] }]
     } else {
       const fullPath = scope.resolve(path)
-      narrowInput(inputsType, fullPath, "string")
+      narrowInput(scope.inputType, fullPath, "string")
       return [{ append: [fullPath] }]
     }
   }
@@ -215,11 +225,8 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
       return processEachBlock(statement, scope)
     }
 
-    if (head === "if") {
+    if (head === "if" || head === "unless") {
       return processConditionalBlock(statement, scope)
-    }
-    if (head === "unless") {
-      return processConditionalBlock(statement, scope, true)
     }
 
     if (statement.params.length > 0) {
@@ -233,15 +240,15 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
   function processConditionalBlock(
     statement: AST.BlockStatement,
-    scope: Scope,
-    negate?: boolean
+    scope: Scope
   ): Output[] {
     const path = (
       statement.params.length === 0 ? statement.path : statement.params[0]
     ) as AST.PathExpression
-
     const conditionResolvedPath = scope.resolve(path)
-    narrowInput(inputsType, conditionResolvedPath, "bool")
+    narrowInput(scope.inputType, conditionResolvedPath, "bool")
+
+    const negate = statement.path.head === "unless"
 
     return [
       {
@@ -263,7 +270,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     const pathExpr = path as AST.PathExpression
 
     const iterateeResolvedPath = scope.resolve(pathExpr)
-    narrowInput(inputsType, iterateeResolvedPath, "array")
+    narrowInput(scope.inputType, iterateeResolvedPath, "array")
 
     // find a unique index var name
     let indexVarName = "__i"
@@ -289,6 +296,43 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
       },
     ]
   }
+
+  function processPartialStatement(
+    statement: AST.PartialStatement,
+    scope: Scope
+  ): Output[] {
+    if (statement.name.type !== "PathExpression") throw new Error("Unsupported")
+    const partialName = statement.name.original
+    const partialTemplate = options.partials && options.partials[partialName]
+    if (!partialTemplate) {
+      throw new Error(`Trying to use an unknown partial: ${partialName}`)
+    }
+
+    const contextPathExpr = (statement.params[0] || {
+      type: "PathExpression",
+      data: false,
+      depth: 0,
+      head: undefined,
+      tail: [],
+      parts: [undefined],
+      original: ".",
+    }) as AST.PathExpression
+    const contextPath = scope.resolve(contextPathExpr)
+
+    let partial = usedPartials.find((p) => p.name === partialName)
+    if (!partial) {
+      const ast = parse(partialTemplate)
+      const inputType = resolveType(scope.inputType, contextPath)
+      partial = {
+        name: partialName,
+        lines: processProgram(ast, new Scope(inputType)),
+        inputType,
+      }
+      usedPartials.push(partial)
+    }
+
+    return [{ append: [`${partial.name}(${contextPath})`] }]
+  }
 }
 
 interface Scope {
@@ -299,6 +343,7 @@ interface Scope {
 }
 
 class Scope {
+  inputType: InputType
   path: string
   /** Keeps track of all Solidity variable names */
   varNames: string[]
@@ -306,11 +351,13 @@ class Scope {
   parent?: Scope
 
   constructor(
+    inputType: InputType = { type: "struct", members: {} },
     path = `${INPUT_VAR_NAME}`,
     varNames = [INPUT_VAR_NAME],
     aliases = {},
     parent?: Scope
   ) {
+    this.inputType = inputType
     this.path = path
     this.varNames = varNames
     this.aliases = aliases
@@ -363,6 +410,7 @@ class Scope {
 
   dive(path: string, newAliases = {}) {
     return new Scope(
+      this.inputType,
       path,
       this.varNames,
       { ...this.aliases, ...newAliases },
@@ -383,11 +431,11 @@ class Scope {
 }
 
 function narrowInput(
-  inputsType: InputType,
+  inputType: InputType,
   path: string, // example: __inputs.member[0].submember
   narrowed: "string" | "array" | "bool" | "uint"
 ) {
-  let type = inputsType
+  let type = inputType
 
   const [prefix, ...parts] = path.split(/\.|(?=\[)/g) // split at . and before [
 
@@ -395,9 +443,6 @@ function narrowInput(
   if (prefix !== INPUT_VAR_NAME) return
 
   parts.forEach((part, i) => {
-    if (typeof part !== "string")
-      throw new Error("Sub expressions are not supported")
-
     const isArrayRef = !!part.match(/\[\w+\]/)
     if (isArrayRef) {
       // mark the dereferenced field as an array
@@ -461,6 +506,36 @@ function narrowInput(
       type: narrowed,
     })
   }
+}
+
+const resolveType = (inputType: InputType, path: string): InputType => {
+  const [prefix, ...parts] = path.split(/\.|(?=\[)/g) // split at . and before [
+
+  let result = inputType
+  parts.forEach((part, i) => {
+    const prevName = parts[i - 1] || prefix
+
+    const isArrayRef = !!part.match(/\[\w+\]/)
+    if (isArrayRef) {
+      if (result.type !== "array") {
+        throw new Error(
+          `Trying to access ${prevName} as an array, but it is a ${inputType.type}`
+        )
+      }
+
+      result = result.elementType
+    } else {
+      if (result.type !== "struct") {
+        throw new Error(
+          `Trying to access ${prevName} as a struct, but it is a ${inputType.type}`
+        )
+      }
+
+      result = result.members[part]
+    }
+  })
+
+  return result
 }
 
 const solStrAppend = (strings: string[]) => {
@@ -547,7 +622,7 @@ const generateTypeNames = (
 }
 
 const findTypeName = (typeNames: TypeName[], type: InputType) =>
-  typeNames.find((typeName) => typeName.inputType === type)?.name
+  typeNames.find((typeName) => compatible(typeName.inputType, type))?.name
 
 const solDefineStructs = (typeNames: TypeName[]): string => {
   const uniqueStructs = typeNames.filter(
@@ -574,8 +649,12 @@ const solDefineStructs = (typeNames: TypeName[]): string => {
 const solDefinePartial = (partial: Partial, typeNames: TypeName[]) => {
   const { name, lines, inputType } = partial
   const typeName = findTypeName(typeNames, inputType)
+
+  const dataLocation =
+    inputType.type === "bool" || inputType.type === "uint" ? "" : " memory"
+
   return `
-  function ${name}(${typeName} ${INPUT_VAR_NAME}) internal pure returns (string memory ${RESULT_VAR_NAME}) {
+  function ${name}(${typeName}${dataLocation} ${INPUT_VAR_NAME}) internal pure returns (string memory ${RESULT_VAR_NAME}) {
     ${lines.map((l) => l.line).join("\n")}
   }
   `
@@ -604,16 +683,16 @@ const SOL_UINT2STR = `function uint2str(uint _i) internal pure returns (string m
 }`
 
 const compatible = (a: InputType, b: InputType): boolean => {
-  if (!a.type || !b.type) return true
+  if (a === b) return true
 
-  if (a.type !== b.type) return false
+  if (!a.type || !b.type) return true
 
   if (a.type === "array" && b.type === "array")
     return compatible(a.elementType, b.elementType)
 
   if (a.type === "struct" && b.type === "struct") return membersMatch(a, b)
 
-  return false
+  return a.type === b.type
 }
 
 const membersMatch = (a: StructInput, b: StructInput): boolean =>

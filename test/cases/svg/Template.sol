@@ -31,7 +31,11 @@ contract Template {
           __input.color,
           '">',
           __input.words[__i],
-          "</text>\n"
+          "</text>\n\n",
+          text(__input.words[__i]),
+          "",
+          text(__input.color),
+          ""
         )
       );
     }
@@ -50,7 +54,38 @@ contract Template {
         )
       );
     }
-    __result = string(abi.encodePacked(__result, "</svg>"));
+    __result = string(abi.encodePacked(__result, "\n</svg>"));
+  }
+
+  function text(string memory __input)
+    internal
+    pure
+    returns (string memory __result)
+  {
+    __result = string(
+      abi.encodePacked(
+        __result,
+        '<text x="200" y="200">',
+        __input,
+        "</text>\n",
+        textsub(__input)
+      )
+    );
+  }
+
+  function textsub(string memory __input)
+    internal
+    pure
+    returns (string memory __result)
+  {
+    __result = string(
+      abi.encodePacked(
+        __result,
+        '<text x="300" y="300">sub: ',
+        __input,
+        "</text>"
+      )
+    );
   }
 
   function uint2str(uint256 _i) internal pure returns (string memory) {

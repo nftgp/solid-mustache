@@ -73,11 +73,35 @@ describe("end-to-end test suite", () => {
         }
       )
 
+      const partialFiles = files.filter((dirent) =>
+        dirent.name.endsWith(".partial.hbs")
+      )
+      const partials: Record<string, string> = {}
+      partialFiles.forEach((file) => {
+        const [partialName] = file.name.split(".")
+        const partialTemplate = readFileSync(
+          path.join(__dirname, "cases", name, file.name),
+          {
+            encoding: "utf8",
+            flag: "r",
+          }
+        )
+        partials[partialName] = partialTemplate
+      })
+      if (partialFiles.length > 0) {
+        console.log(
+          `Registering ${
+            partialFiles.length
+          } partials for cases/${name}: ${Object.keys(partials).join(", ")}`
+        )
+      }
+
       let contract: Contract
 
       before(async () => {
         const contractSource = compile(template, {
           contract: true,
+          partials,
           format: prettierConfig,
         })
 
