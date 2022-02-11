@@ -1,0 +1,26 @@
+<clipPath id="stoneclip">
+  <circle cx="1000" cy="1060" r="262"></circle>
+</clipPath>
+<filter id="texture">
+  <feTurbulence
+    baseFrequency="0.005 0.01"
+    numOctaves="3"
+    seed="{{seed}}"
+  ></feTurbulence>
+  <feDiffuseLighting lighting-color={{color}} surfaceScale="10">
+    <feDistantLight elevation="60"></feDistantLight>
+  </feDiffuseLighting>
+  <feComposite operator="in" in2="SourceGraphic"></feComposite>
+</filter>
+<radialGradient id="stoneshadow">
+  <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>
+  <stop offset="90%" stop-color="hsla(0, 0%, 0%, 1)"></stop>
+</radialGradient>
+<circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle>
+<circle
+  cx="800"
+  cy="1060"
+  r="520"
+  fill="url(#stoneshadow)"
+  clip-path="url(#stoneclip)"
+></circle>

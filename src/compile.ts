@@ -97,7 +97,6 @@ export const compile = (template: string, options: Options = {}): string => {
 
   const typeNames = generateTypeNames(scope.inputType)
   const structDefs = solDefineStructs(typeNames)
-
   const partialDefs = usedPartials
     .reverse()
     .map((partial) => solDefinePartial(partial, typeNames))
@@ -308,21 +307,15 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
       throw new Error(`Trying to use an unknown partial: ${partialName}`)
     }
 
-    const contextPathExpr = (statement.params[0] || {
-      type: "PathExpression",
-      data: false,
-      depth: 0,
-      head: undefined,
-      tail: [],
-      parts: [undefined],
-      original: ".",
-    }) as AST.PathExpression
-    const contextPath = scope.resolve(contextPathExpr)
+    const contextPath = statement.params[0]
+      ? scope.resolve(statement.params[0] as AST.PathExpression)
+      : scope.path
 
     let partial = usedPartials.find((p) => p.name === partialName)
     if (!partial) {
       const ast = parse(partialTemplate)
       const inputType = resolveType(scope.inputType, contextPath)
+
       partial = {
         name: partialName,
         lines: processProgram(ast, new Scope(inputType)),
@@ -436,7 +429,6 @@ function narrowInput(
   narrowed: "string" | "array" | "bool" | "uint"
 ) {
   let type = inputType
-
   const [prefix, ...parts] = path.split(/\.|(?=\[)/g) // split at . and before [
 
   // local vars can't be narrowed
@@ -531,6 +523,9 @@ const resolveType = (inputType: InputType, path: string): InputType => {
         )
       }
 
+      if (!result.members[part]) {
+        result.members[part] = { type: undefined }
+      }
       result = result.members[part]
     }
   })
