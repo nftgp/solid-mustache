@@ -248,10 +248,28 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     narrowInput(scope.inputType, conditionResolvedPath, "bool")
 
     const negate = statement.path.head === "unless"
+    const condition = `${negate ? "!" : ""}${conditionResolvedPath}`
+
+    const containsSingleAppend =
+      statement.program.body.length === 1 &&
+      statement.program.body[0].type !== "BlockStatement"
+
+    // Optimization: use ternary if possible
+    if (containsSingleAppend) {
+      const [singleAppend] = processStatement(statement.program.body[0], scope)
+      if (
+        singleAppend &&
+        "append" in singleAppend &&
+        singleAppend.append.length === 1
+      ) {
+        const [appendStr] = singleAppend.append
+        return [{ append: [`${condition} ? ${appendStr} : ""`] }]
+      }
+    }
 
     return [
       {
-        line: `if(${negate ? "!" : ""}${conditionResolvedPath}) {`,
+        line: `if(${condition}) {`,
       },
       ...processProgram(statement.program, scope),
       {

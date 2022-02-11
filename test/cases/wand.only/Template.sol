@@ -64,17 +64,13 @@ contract Template {
           __result,
           '    <g\n      style="transform: rotate(calc(',
           uint2str(__i),
-          ' * 15deg)) translateY(-520px);"\n    >\n      '
+          ' * 15deg)) translateY(-520px);"\n    >\n      ',
+          __input.rhythm[__i].halo0 ? '<use href="#h0"></use>' : "",
+          "\n      ",
+          __input.rhythm[__i].halo1 ? '<use href="#h1"></use>' : "",
+          "\n    </g>\n"
         )
       );
-      if (__input.rhythm[__i].halo0) {
-        __result = string(abi.encodePacked(__result, '<use href="#h0"></use>'));
-      }
-      __result = string(abi.encodePacked(__result, "\n      "));
-      if (__input.rhythm[__i].halo1) {
-        __result = string(abi.encodePacked(__result, '<use href="#h1"></use>'));
-      }
-      __result = string(abi.encodePacked(__result, "\n    </g>\n"));
     }
     __result = string(abi.encodePacked(__result, "</g>"));
   }
