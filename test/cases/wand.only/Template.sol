@@ -89,9 +89,9 @@ contract Template {
         __result,
         '<clipPath id="stoneclip">\n  <circle cx="1000" cy="1060" r="262"></circle>\n</clipPath>\n<filter id="texture">\n  <feTurbulence\n    baseFrequency="0.005 0.01"\n    numOctaves="3"\n    seed="',
         __input.seed,
-        '"\n  ></feTurbulence>\n  <feDiffuseLighting lighting-color=',
+        '"\n  ></feTurbulence>\n  <feDiffuseLighting lighting-color="',
         __input.color,
-        ' surfaceScale="10">\n    <feDistantLight elevation="60"></feDistantLight>\n  </feDiffuseLighting>\n  <feComposite operator="in" in2="SourceGraphic"></feComposite>\n</filter>\n<radialGradient id="stoneshadow">\n  <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>\n  <stop offset="90%" stop-color="hsla(0, 0%, 0%, 1)"></stop>\n</radialGradient>\n<circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle>\n<circle\n  cx="800"\n  cy="1060"\n  r="520"\n  fill="url(#stoneshadow)"\n  clip-path="url(#stoneclip)"\n></circle>'
+        '" surfaceScale="10">\n    <feDistantLight elevation="60"></feDistantLight>\n  </feDiffuseLighting>\n  <feComposite operator="in" in2="SourceGraphic"></feComposite>\n</filter>\n<radialGradient id="stoneshadow">\n  <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>\n  <stop offset="90%" stop-color="hsla(0, 0%, 0%, 1)"></stop>\n</radialGradient>\n<circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle>\n<circle\n  cx="800"\n  cy="1060"\n  r="520"\n  fill="url(#stoneshadow)"\n  clip-path="url(#stoneclip)"\n></circle>'
       )
     );
   }
