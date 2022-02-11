@@ -2,7 +2,7 @@
 
 {{mustache}} templates that compile to Solidity.
 
-- Uses @handlebars/parser for parsing mustache syntax.
+- Uses [@handlebars/parser](https://github.com/handlebars-lang/handlebars-parser) for parsing mustache syntax.
 - Compiles templates to Solidity contracts.
 - Supports the following mustache/handlebars expressions:
   - [path expressions](https://handlebarsjs.com/guide/expressions.html#path-expressions)
@@ -13,7 +13,7 @@
 ## Contribute
 
 The goal is maximum compatibility with [handlebars](https://handlebarsjs.com).
-If you see unexpected rendering results for your templates, submit an issue or, even better, create a PR adding your template as new test case in [./test/cases].
+If you see unexpected rendering results for your templates, submit an issue or, even better, create a PR adding your template as new test case in [test/cases](./test/cases).
 
 ### How test cases are structured
 
