@@ -12,13 +12,7 @@
     <rect width="100%" height="100%"></rect>
   </g>
 </mask>
-<rect
-  width="100%"
-  height="100%"
-  fill="white"
-  mask="url(#starsmask)"
-  clip-path="url(#starsclip)"
-></rect>
+
 <circle class="bc" cx="1000" cy="1060" r="260"></circle>
 <circle class="bc" cx="1000" cy="1060" r="360"></circle>
 <circle class="bc" cx="1000" cy="1060" r="440"></circle>
@@ -27,8 +21,17 @@
 <line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>
 <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>
 <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>
-<g transform="translate(1000 1060)">
-  {{#each planets}}
-    <circle cx="{{x}}" cy="{{y}}" r="13" fill="white"></circle>
-  {{/each}}
-</g>
+
+<g style="filter: blur(3px);">
+  <rect
+    width="100%"
+    height="100%"
+    fill="white"
+    mask="url(#starsmask)"
+    clip-path="url(#starsclip)"
+  ></rect>
+  <g transform="translate(1000 1060)">
+    {{#each planets}}
+      <circle cx="{{x}}" cy="{{y}}" r="11" fill="white"></circle>
+    {{/each}}
+  </g></g>
