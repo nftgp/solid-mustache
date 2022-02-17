@@ -3,10 +3,16 @@ pragma solidity ^0.8.6;
 
 contract Template {
   struct __Input {
+    Background background;
     string starsSeed;
     Stone stone;
     Planet[] planets;
     Halo halo;
+    string title;
+  }
+
+  struct Background {
+    bool bg0;
   }
 
   struct Stone {
@@ -41,14 +47,33 @@ contract Template {
       abi.encodePacked(
         __result,
         '<svg\n  xmlns="http://www.w3.org/2000/svg"\n  version="1.1"\n  viewBox="0 0 2000 3000"\n  style="background: #112211;"\n>\n  <style type="text/css">\n    .bc{fill:none;stroke:#8BA0A5;}\n  </style>\n  \n',
-        background(__input),
+        background(__input.background),
+        "",
+        stars(__input),
         "",
         stone(__input.stone),
         "",
         birthchart(__input),
         "",
         halo(__input.halo),
+        "",
+        frame(__input),
         "</svg>"
+      )
+    );
+  }
+
+  function frame(__Input memory __input)
+    internal
+    pure
+    returns (string memory __result)
+  {
+    __result = string(
+      abi.encodePacked(
+        __result,
+        '<style type="text/css">\n  .st0{fill:none;stroke:#DCD7AF;stroke-width:4;stroke-miterlimit:10;}\n  .st1{fill:#DCD7AF;}\n</style>\n<symbol id="Frame_border" viewBox="-433.4 -1413.6 866.8 2827.1">\n  <path\n    class="st0"\n    d="M419.3,1389.5l12.1,17.6v-17.6v-32.8h-850.7v-2713.5h372.9v-32.8v-17.6l-12.1,17.6h-372.9v32.8v2713.5v32.8\n\t\tH419.3z"\n  ></path>\n</symbol>\n<symbol id="Star" viewBox="-59.9 -59.9 119.8 119.8">\n  <path\n    class="st1"\n    d="M59.9,59.9C-0.6,5.8,2.8,3-59.8,59.9c56.3-58,55.5-62-0.1-119.7C2.8-2.9-0.7-5.6,59.8-59.9\n\t\tC5.4-1.5,3.6,0.7,59.9,59.9z"\n  ></path>\n</symbol>\n<g id="frame">\n  <g>\n    <path\n      class="st1"\n      d="M1960,40v2920H40V40H1960 M2000,0H0v3000h2000V0L2000,0z"\n    ></path>\n  </g>\n\n  <use\n    href="#Frame_border"\n    width="866.8"\n    height="2827.1"\n    x="-433.4"\n    y="-1413.6"\n    transform="matrix(1 0 0 -1 508.8714 1500.0009)"\n  ></use>\n\n  <use\n    href="#Frame_border"\n    width="866.8"\n    height="2827.1"\n    x="-433.4"\n    y="-1413.6"\n    transform="matrix(-1 0 0 -1 1491.2577 1499.7725)"\n  ></use>\n  <circle class="st1" cx="1000" cy="118.4" r="24.2"></circle>\n\n  <use\n    href="#Star"\n    width="119.8"\n    height="119.8"\n    x="-59.9"\n    y="-59.9"\n    transform="matrix(1 0 0 -1 215.571 256.0737)"\n  ></use>\n\n  <use\n    href="#Star"\n    width="119.8"\n    height="119.8"\n    x="-59.9"\n    y="-59.9"\n    transform="matrix(1 0 0 -1 1785.0356 256.0737)"\n  ></use>\n\n  <use\n    href="#Star"\n    width="119.8"\n    height="119.8"\n    x="-59.9"\n    y="-59.9"\n    transform="matrix(1 0 0 -1 215.571 2744.0227)"\n  ></use>\n\n  <use\n    href="#Star"\n    width="119.8"\n    height="119.8"\n    x="-59.9"\n    y="-59.9"\n    transform="matrix(1 0 0 -1 1785.0356 2744.0227)"\n  ></use>\n\n  <path\n    class="st1"\n    d="M541.3,2828.4h917.5c27.2,0,49.3,22.1,49.3,49.3v2c0,27.2-22.1,49.3-49.3,49.3H541.3\n\t\tc-27.2,0-49.3-22.1-49.3-49.3v-2C491.9,2850.5,514,2828.4,541.3,2828.4z"\n  ></path>\n\n  <text\n    text-anchor="middle"\n    x="1000"\n    y="2895"\n    style="font: 45px serif;"\n  >',
+        __input.title,
+        "</text>\n</g>"
       )
     );
   }
@@ -70,7 +95,7 @@ contract Template {
           __result,
           '    <g\n      style="transform: rotate(calc(',
           uint2str(__i),
-          ' * 15deg)) translateY(-700px);"\n    >\n      ',
+          ' * 15deg)) translateY(-600px);"\n    >\n      ',
           __input.rhythm[__i].halo0 ? '<use href="#h0"></use>' : "",
           "\n      ",
           __input.rhythm[__i].halo1 ? '<use href="#h1"></use>' : "",
@@ -131,7 +156,7 @@ contract Template {
     );
   }
 
-  function background(__Input memory __input)
+  function stars(__Input memory __input)
     internal
     pure
     returns (string memory __result)
@@ -142,6 +167,21 @@ contract Template {
         '<filter id="stars">\n  <feTurbulence baseFrequency="0.1" seed="',
         __input.starsSeed,
         '"></feTurbulence>\n  <feColorMatrix\n    values="0 0 0 7 -4  0 0 0 7 -4  0 0 0 7 -4  0 0 0 0 1"\n  ></feColorMatrix>\n</filter>\n<clipPath id="starsclip">\n  <circle cx="1000" cy="1060" r="520"></circle>\n</clipPath>\n<mask id="starsmask">\n  <g filter="url(#stars)" transform="scale(2)">\n    <rect width="100%" height="100%"></rect>\n  </g>\n</mask>\n\n<circle class="bc" cx="1000" cy="1060" r="260"></circle>\n<circle class="bc" cx="1000" cy="1060" r="360"></circle>\n<circle class="bc" cx="1000" cy="1060" r="440"></circle>\n<circle class="bc" cx="1000" cy="1060" r="520"></circle>\n<line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>\n<line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>\n<line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>\n<line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>\n\n<g style="filter: blur(2px);">\n  <rect\n    width="100%"\n    height="100%"\n    fill="white"\n    mask="url(#starsmask)"\n    clip-path="url(#starsclip)"\n  ></rect>\n</g>'
+      )
+    );
+  }
+
+  function background(Background memory __input)
+    internal
+    pure
+    returns (string memory __result)
+  {
+    __result = string(
+      abi.encodePacked(
+        __result,
+        __input.bg0
+          ? '  <path\n    d="M1000,2434.7l-198.9,334.1l194.9-334.7L422.9,2646l569.6-213.7l-891.4-19.9l888.6,17.1l-1122.4-338.6\n\t\t\tl1120.5,335.1l-1243.4-713L987.3,2422L-255.5,1315.5L987.9,2418.1L-132.6,937.5l1122.4,1477L101.1,616l891.4,1795.7L422.9,382.4\n\t\t\tl573.2,2027.5L801.1,259.6L1000,2409.3l198.9-2149.7l-194.9,2150.3l573.2-2027.5l-569.6,2029.3L1898.9,616l-888.6,1798.5\n\t\t\tl1122.4-1477L1012.1,2418.1l1243.4-1102.6L1012.7,2422l1242.8-709.1l-1243.4,713l1120.5-335.1l-1122.4,338.6l888.6-17.1\n\t\t\tl-891.4,19.9l569.6,213.7l-573.2-211.9l194.9,334.7L1000,2434.7z"\n    fill="white"\n  ></path>\n'
+          : ""
       )
     );
   }

@@ -1,4 +1,6 @@
 {
+  "title": "FLOURISHING MISTY WORLD",
+  "background": { "bg0": true },
   "planets": [
     { "x": "-417", "y": " 289" },
     { "x": "-136", "y": " 293" },

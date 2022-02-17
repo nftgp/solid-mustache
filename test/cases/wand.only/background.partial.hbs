@@ -1,33 +1,10 @@
-<filter id="stars">
-  <feTurbulence baseFrequency="0.1" seed="{{starsSeed}}"></feTurbulence>
-  <feColorMatrix
-    values="0 0 0 7 -4  0 0 0 7 -4  0 0 0 7 -4  0 0 0 0 1"
-  ></feColorMatrix>
-</filter>
-<clipPath id="starsclip">
-  <circle cx="1000" cy="1060" r="520"></circle>
-</clipPath>
-<mask id="starsmask">
-  <g filter="url(#stars)" transform="scale(2)">
-    <rect width="100%" height="100%"></rect>
-  </g>
-</mask>
-
-<circle class="bc" cx="1000" cy="1060" r="260"></circle>
-<circle class="bc" cx="1000" cy="1060" r="360"></circle>
-<circle class="bc" cx="1000" cy="1060" r="440"></circle>
-<circle class="bc" cx="1000" cy="1060" r="520"></circle>
-<line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>
-<line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>
-<line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>
-<line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>
-
-<g style="filter: blur(2px);">
-  <rect
-    width="100%"
-    height="100%"
+{{#if bg0}}
+  <path
+    d="M1000,2434.7l-198.9,334.1l194.9-334.7L422.9,2646l569.6-213.7l-891.4-19.9l888.6,17.1l-1122.4-338.6
+			l1120.5,335.1l-1243.4-713L987.3,2422L-255.5,1315.5L987.9,2418.1L-132.6,937.5l1122.4,1477L101.1,616l891.4,1795.7L422.9,382.4
+			l573.2,2027.5L801.1,259.6L1000,2409.3l198.9-2149.7l-194.9,2150.3l573.2-2027.5l-569.6,2029.3L1898.9,616l-888.6,1798.5
+			l1122.4-1477L1012.1,2418.1l1243.4-1102.6L1012.7,2422l1242.8-709.1l-1243.4,713l1120.5-335.1l-1122.4,338.6l888.6-17.1
+			l-891.4,19.9l569.6,213.7l-573.2-211.9l194.9,334.7L1000,2434.7z"
     fill="white"
-    mask="url(#starsmask)"
-    clip-path="url(#starsclip)"
-  ></rect>
-</g>
+  ></path>
+{{/if}}
