@@ -22,13 +22,7 @@
     <rect width="100%" height="100%"></rect>
   </g>
 </mask>
-<rect
-  width="100%"
-  height="100%"
-  fill="white"
-  mask="url(#starsmask)"
-  clip-path="url(#starsclip)"
-></rect>
+
 <circle class="bc" cx="1000" cy="1060" r="260"></circle>
 <circle class="bc" cx="1000" cy="1060" r="360"></circle>
 <circle class="bc" cx="1000" cy="1060" r="440"></circle>
@@ -37,18 +31,27 @@
 <line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>
 <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>
 <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>
-<g transform="translate(1000 1060)">
-    <circle cx="0176" cy="0486" r="13" fill="white"></circle>
-    <circle cx="0000" cy="0000" r="13" fill="white"></circle>
-    <circle cx="0250" cy="0356" r="13" fill="white"></circle>
-    <circle cx="0259" cy="0271" r="13" fill="white"></circle>
-    <circle cx="0311" cy="0247" r="13" fill="white"></circle>
-    <circle cx="0000" cy="0000" r="13" fill="white"></circle>
-    <circle cx="0000" cy="0000" r="13" fill="white"></circle>
-    <circle cx="0000" cy="0000" r="13" fill="white"></circle>
-    <circle cx="0000" cy="0000" r="13" fill="white"></circle>
-    <circle cx="0270" cy="0379" r="13" fill="white"></circle>
-</g><clipPath id="stoneclip">
+
+<g style="filter: blur(3px);">
+  <rect
+    width="100%"
+    height="100%"
+    fill="white"
+    mask="url(#starsmask)"
+    clip-path="url(#starsclip)"
+  ></rect>
+  <g transform="translate(1000 1060)">
+      <circle cx="0176" cy="0486" r="11" fill="white"></circle>
+      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
+      <circle cx="0250" cy="0356" r="11" fill="white"></circle>
+      <circle cx="0259" cy="0271" r="11" fill="white"></circle>
+      <circle cx="0311" cy="0247" r="11" fill="white"></circle>
+      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
+      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
+      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
+      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
+      <circle cx="0270" cy="0379" r="11" fill="white"></circle>
+  </g></g><clipPath id="stoneclip">
   <circle cx="1000" cy="1060" r="262"></circle>
 </clipPath>
 <filter id="texture">
@@ -62,18 +65,38 @@
   </feDiffuseLighting>
   <feComposite operator="in" in2="SourceGraphic"></feComposite>
 </filter>
-<radialGradient id="stoneshadow">
+<radialGradient id="ambientshadow">
   <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>
-  <stop offset="90%" stop-color="hsla(0, 0%, 0%, 1)"></stop>
+  <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop>
+</radialGradient>
+<radialGradient id="sunshadow">
+  <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>
+  <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.75)"></stop>
 </radialGradient>
 <circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle>
-<circle
-  cx="800"
-  cy="1060"
-  r="520"
-  fill="url(#stoneshadow)"
-  clip-path="url(#stoneclip)"
-></circle><def>
+<circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle>
+
+<g clip-path="url(#stoneclip)">
+  <g>
+    <animateTransform
+      attributeName="transform"
+      attributeType="XML"
+      type="translate"
+      values="0 0;0 -260;0 0"
+      dur="30779326s"
+      begin="-15389663s"
+      repeatCount="indefinite"
+    ></animateTransform>
+    <circle r="1045" fill="url(#sunshadow)">
+      <animateMotion
+        dur="86400s"
+        begin="-43200s"
+        repeatCount="indefinite"
+        path="M 1000 800 A 260 260 0 0 1 1000 1320 A 260 260 0 0 1 1000 800 z"
+      ></animateMotion>
+    </circle>
+  </g>
+</g><def>
   <path
     d="M58.7687 76.7949C110.299 88.0702 154.043 62.7974 190 0.976313L110 139.54C77.1838 120.42 37.9799 109.915 -3.21719e-05 110.066L-1.0516e-05 70.0661C19.718 70.0595 39.5625 72.3317 58.7687 76.7949Z"
     fill="#9A9EA7"
@@ -84,145 +107,145 @@
 
 <g transform="translate(1000 1060)">
     <g
-      style="transform: rotate(calc(0 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(0 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(1 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(1 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(2 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(2 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(3 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(3 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(4 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(4 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(5 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(5 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(6 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(6 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(7 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(7 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(8 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(8 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(9 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(9 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(10 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(10 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(11 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(11 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(12 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(12 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(13 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(13 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(14 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(14 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(15 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(15 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(16 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(16 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(17 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(17 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(18 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(18 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(19 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(19 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(20 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(20 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(21 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(21 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>
     </g>
     <g
-      style="transform: rotate(calc(22 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(22 * 15deg)) translateY(-700px);"
     >
       <use href="#h0"></use>
       
     </g>
     <g
-      style="transform: rotate(calc(23 * 15deg)) translateY(-520px);"
+      style="transform: rotate(calc(23 * 15deg)) translateY(-700px);"
     >
       
       <use href="#h1"></use>

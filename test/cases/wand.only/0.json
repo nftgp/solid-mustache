@@ -14,7 +14,11 @@
   "starsSeed": "5",
   "stone": {
     "seed": "1",
-    "color": "crimson"
+    "color": "crimson",
+    "seasonsAmplitude": 260,
+    "northernHemisphere": true,
+    "secondInYear": 15389663,
+    "secondInDay": 43200
   },
   "halo": {
     "rhythm": [

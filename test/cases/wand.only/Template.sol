@@ -17,6 +17,10 @@ contract Template {
   struct Stone {
     string seed;
     string color;
+    bool northernHemisphere;
+    uint256 seasonsAmplitude;
+    uint256 secondInYear;
+    uint256 secondInDay;
   }
 
   struct Halo {
@@ -64,7 +68,7 @@ contract Template {
           __result,
           '    <g\n      style="transform: rotate(calc(',
           uint2str(__i),
-          ' * 15deg)) translateY(-520px);"\n    >\n      ',
+          ' * 15deg)) translateY(-700px);"\n    >\n      ',
           __input.rhythm[__i].halo0 ? '<use href="#h0"></use>' : "",
           "\n      ",
           __input.rhythm[__i].halo1 ? '<use href="#h1"></use>' : "",
@@ -87,7 +91,14 @@ contract Template {
         __input.seed,
         '"\n  ></feTurbulence>\n  <feDiffuseLighting lighting-color="',
         __input.color,
-        '" surfaceScale="10">\n    <feDistantLight elevation="60"></feDistantLight>\n  </feDiffuseLighting>\n  <feComposite operator="in" in2="SourceGraphic"></feComposite>\n</filter>\n<radialGradient id="stoneshadow">\n  <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>\n  <stop offset="90%" stop-color="hsla(0, 0%, 0%, 1)"></stop>\n</radialGradient>\n<circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle>\n<circle\n  cx="800"\n  cy="1060"\n  r="520"\n  fill="url(#stoneshadow)"\n  clip-path="url(#stoneclip)"\n></circle>'
+        '" surfaceScale="10">\n    <feDistantLight elevation="60"></feDistantLight>\n  </feDiffuseLighting>\n  <feComposite operator="in" in2="SourceGraphic"></feComposite>\n</filter>\n<radialGradient id="ambientshadow">\n  <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>\n  <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop>\n</radialGradient>\n<radialGradient id="sunshadow">\n  <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>\n  <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.75)"></stop>\n</radialGradient>\n<circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle>\n<circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle>\n\n<g clip-path="url(#stoneclip)">\n  <g>\n    <animateTransform\n      attributeName="transform"\n      attributeType="XML"\n      type="translate"\n      values="0 0;0 ',
+        __input.northernHemisphere ? "-" : "",
+        uint2str(__input.seasonsAmplitude),
+        ';0 0"\n      dur="30779326s"\n      begin="-',
+        uint2str(__input.secondInYear),
+        's"\n      repeatCount="indefinite"\n    ></animateTransform>\n    <circle r="1045" fill="url(#sunshadow)">\n      <animateMotion\n        dur="86400s"\n        begin="-',
+        uint2str(__input.secondInDay),
+        's"\n        repeatCount="indefinite"\n        path="M 1000 800 A 260 260 0 0 1 1000 1320 A 260 260 0 0 1 1000 800 z"\n      ></animateMotion>\n    </circle>\n  </g>\n</g>'
       )
     );
   }
@@ -102,22 +113,22 @@ contract Template {
         __result,
         '<filter id="stars">\n  <feTurbulence baseFrequency="0.1" seed="',
         __input.starsSeed,
-        '"></feTurbulence>\n  <feColorMatrix\n    values="0 0 0 7 -4  0 0 0 7 -4  0 0 0 7 -4  0 0 0 0 1"\n  ></feColorMatrix>\n</filter>\n<clipPath id="starsclip">\n  <circle cx="1000" cy="1060" r="520"></circle>\n</clipPath>\n<mask id="starsmask">\n  <g filter="url(#stars)" transform="scale(2)">\n    <rect width="100%" height="100%"></rect>\n  </g>\n</mask>\n<rect\n  width="100%"\n  height="100%"\n  fill="white"\n  mask="url(#starsmask)"\n  clip-path="url(#starsclip)"\n></rect>\n<circle class="bc" cx="1000" cy="1060" r="260"></circle>\n<circle class="bc" cx="1000" cy="1060" r="360"></circle>\n<circle class="bc" cx="1000" cy="1060" r="440"></circle>\n<circle class="bc" cx="1000" cy="1060" r="520"></circle>\n<line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>\n<line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>\n<line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>\n<line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>\n<g transform="translate(1000 1060)">\n'
+        '"></feTurbulence>\n  <feColorMatrix\n    values="0 0 0 7 -4  0 0 0 7 -4  0 0 0 7 -4  0 0 0 0 1"\n  ></feColorMatrix>\n</filter>\n<clipPath id="starsclip">\n  <circle cx="1000" cy="1060" r="520"></circle>\n</clipPath>\n<mask id="starsmask">\n  <g filter="url(#stars)" transform="scale(2)">\n    <rect width="100%" height="100%"></rect>\n  </g>\n</mask>\n\n<circle class="bc" cx="1000" cy="1060" r="260"></circle>\n<circle class="bc" cx="1000" cy="1060" r="360"></circle>\n<circle class="bc" cx="1000" cy="1060" r="440"></circle>\n<circle class="bc" cx="1000" cy="1060" r="520"></circle>\n<line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>\n<line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>\n<line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>\n<line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>\n\n<g style="filter: blur(3px);">\n  <rect\n    width="100%"\n    height="100%"\n    fill="white"\n    mask="url(#starsmask)"\n    clip-path="url(#starsclip)"\n  ></rect>\n  <g transform="translate(1000 1060)">\n'
       )
     );
     for (uint256 __i; __i < __input.planets.length; __i++) {
       __result = string(
         abi.encodePacked(
           __result,
-          '    <circle cx="',
+          '      <circle cx="',
           __input.planets[__i].x,
           '" cy="',
           __input.planets[__i].y,
-          '" r="13" fill="white"></circle>\n'
+          '" r="11" fill="white"></circle>\n'
         )
       );
     }
-    __result = string(abi.encodePacked(__result, "</g>"));
+    __result = string(abi.encodePacked(__result, "  </g></g>"));
   }
 
   function uint2str(uint256 _i) internal pure returns (string memory) {

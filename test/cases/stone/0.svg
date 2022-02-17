@@ -5,19 +5,34 @@
   style="background: #112211;"
 >
   <clipPath id="stoneclip">
-    <circle cx="1000" cy="1060" r="262" />
+    <circle cx="1000" cy="1060" r="262"></circle>
   </clipPath>
   <filter id="texture">
-    <feTurbulence baseFrequency="0.005 0.01" numOctaves="3" />
+    <feTurbulence
+    baseFrequency="0.005 0.01"
+    numOctaves="3"
+    seed="1"
+  ></feTurbulence>
     <feDiffuseLighting lighting-color="crimson" surfaceScale="10">
-      <feDistantLight elevation="60" />
+      <feDistantLight elevation="60"></feDistantLight>
     </feDiffuseLighting>
-    <feComposite operator="in" in2="SourceGraphic"/>
+    <feComposite operator="in" in2="SourceGraphic"></feComposite>
   </filter>
-  <radialGradient id="stoneshadow">
+  <radialGradient id="ambientshadow">
     <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>
-    <stop offset="90%" stop-color="hsla(0, 0%, 0%, 1)"></stop>
+    <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop>
   </radialGradient>
-  <circle cx="1000" cy="1060" r="260" filter="url(#texture)" />
-  <circle cx="800" cy="1060" r="520" fill="url(#stoneshadow)" clip-path="url(#stoneclip)"/>
-</svg>
+  <radialGradient id="sunshadow">
+    <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>=
+    <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.75)"></stop>
+  </radialGradient>
+  <circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle>
+  <circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle>
+  <g clip-path="url(#stoneclip)">
+    <g>
+      <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0 0;0 -520;0 0" dur="30779326s" begin="-100000s" repeatCount="indefinite"/>
+      <circle r="1045" fill="url(#sunshadow)">
+        <animateMotion dur="86400s" repeatCount="indefinite" path="M 1000 800 A 260 260 0 0 1 1000 1320 A 260 260 0 0 1 1000 800 z" />
+      </circle>
+    </g>
+  </svg>
