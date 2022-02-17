@@ -191,7 +191,9 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
   }
 
   function processContentStatement(statement: AST.ContentStatement): Output[] {
-    return [{ append: [`"${solEscape(statement.value)}"`] }]
+    return statement.value.length > 0
+      ? [{ append: [`"${solEscape(statement.value)}"`] }]
+      : []
   }
 
   function processMustacheStatement(

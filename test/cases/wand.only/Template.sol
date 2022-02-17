@@ -48,15 +48,10 @@ contract Template {
         __result,
         '<svg\n  xmlns="http://www.w3.org/2000/svg"\n  version="1.1"\n  viewBox="0 0 2000 3000"\n  style="background: #112211;"\n>\n  <style type="text/css">\n    .bc{fill:none;stroke:#8BA0A5;}\n  </style>\n  \n',
         background(__input.background),
-        "",
         stars(__input),
-        "",
         stone(__input.stone),
-        "",
         birthchart(__input),
-        "",
         halo(__input.halo),
-        "",
         frame(__input),
         "</svg>"
       )
