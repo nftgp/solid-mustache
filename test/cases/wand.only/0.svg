@@ -32,7 +32,7 @@
 <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>
 <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>
 
-<g style="filter: blur(3px);">
+<g style="filter: blur(2px);">
   <rect
     width="100%"
     height="100%"
@@ -40,18 +40,7 @@
     mask="url(#starsmask)"
     clip-path="url(#starsclip)"
   ></rect>
-  <g transform="translate(1000 1060)">
-      <circle cx="0176" cy="0486" r="11" fill="white"></circle>
-      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
-      <circle cx="0250" cy="0356" r="11" fill="white"></circle>
-      <circle cx="0259" cy="0271" r="11" fill="white"></circle>
-      <circle cx="0311" cy="0247" r="11" fill="white"></circle>
-      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
-      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
-      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
-      <circle cx="0000" cy="0000" r="11" fill="white"></circle>
-      <circle cx="0270" cy="0379" r="11" fill="white"></circle>
-  </g></g><clipPath id="stoneclip">
+</g><clipPath id="stoneclip">
   <circle cx="1000" cy="1060" r="262"></circle>
 </clipPath>
 <filter id="texture">
@@ -96,6 +85,12 @@
       ></animateMotion>
     </circle>
   </g>
+</g><g transform="translate(1000 1060)" style="filter: blur(5px);">
+    <circle cx="-417" cy=" 289" r="11" fill="white"></circle>
+    <circle cx="-136" cy=" 293" r="11" fill="white"></circle>
+    <circle cx="-298" cy=" 310" r="11" fill="white"></circle>
+    <circle cx=" 164" cy=" 149" r="11" fill="white"></circle>
+    <circle cx="-072" cy=" 277" r="11" fill="white"></circle>
 </g><def>
   <path
     d="M58.7687 76.7949C110.299 88.0702 154.043 62.7974 190 0.976313L110 139.54C77.1838 120.42 37.9799 109.915 -3.21719e-05 110.066L-1.0516e-05 70.0661C19.718 70.0595 39.5625 72.3317 58.7687 76.7949Z"

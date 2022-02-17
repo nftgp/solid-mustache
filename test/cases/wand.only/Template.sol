@@ -4,14 +4,9 @@ pragma solidity ^0.8.6;
 contract Template {
   struct __Input {
     string starsSeed;
-    Planet[] planets;
     Stone stone;
+    Planet[] planets;
     Halo halo;
-  }
-
-  struct Planet {
-    string x;
-    string y;
   }
 
   struct Stone {
@@ -21,6 +16,11 @@ contract Template {
     uint256 seasonsAmplitude;
     uint256 secondInYear;
     uint256 secondInDay;
+  }
+
+  struct Planet {
+    string x;
+    string y;
   }
 
   struct Halo {
@@ -41,9 +41,11 @@ contract Template {
       abi.encodePacked(
         __result,
         '<svg\n  xmlns="http://www.w3.org/2000/svg"\n  version="1.1"\n  viewBox="0 0 2000 3000"\n  style="background: #112211;"\n>\n  <style type="text/css">\n    .bc{fill:none;stroke:#8BA0A5;}\n  </style>\n  \n',
-        birthchart(__input),
+        background(__input),
         "",
         stone(__input.stone),
+        "",
+        birthchart(__input),
         "",
         halo(__input.halo),
         "</svg>"
@@ -79,6 +81,32 @@ contract Template {
     __result = string(abi.encodePacked(__result, "</g>"));
   }
 
+  function birthchart(__Input memory __input)
+    internal
+    pure
+    returns (string memory __result)
+  {
+    __result = string(
+      abi.encodePacked(
+        __result,
+        '<g transform="translate(1000 1060)" style="filter: blur(5px);">\n'
+      )
+    );
+    for (uint256 __i; __i < __input.planets.length; __i++) {
+      __result = string(
+        abi.encodePacked(
+          __result,
+          '    <circle cx="',
+          __input.planets[__i].x,
+          '" cy="',
+          __input.planets[__i].y,
+          '" r="11" fill="white"></circle>\n'
+        )
+      );
+    }
+    __result = string(abi.encodePacked(__result, "</g>"));
+  }
+
   function stone(Stone memory __input)
     internal
     pure
@@ -103,7 +131,7 @@ contract Template {
     );
   }
 
-  function birthchart(__Input memory __input)
+  function background(__Input memory __input)
     internal
     pure
     returns (string memory __result)
@@ -113,22 +141,9 @@ contract Template {
         __result,
         '<filter id="stars">\n  <feTurbulence baseFrequency="0.1" seed="',
         __input.starsSeed,
-        '"></feTurbulence>\n  <feColorMatrix\n    values="0 0 0 7 -4  0 0 0 7 -4  0 0 0 7 -4  0 0 0 0 1"\n  ></feColorMatrix>\n</filter>\n<clipPath id="starsclip">\n  <circle cx="1000" cy="1060" r="520"></circle>\n</clipPath>\n<mask id="starsmask">\n  <g filter="url(#stars)" transform="scale(2)">\n    <rect width="100%" height="100%"></rect>\n  </g>\n</mask>\n\n<circle class="bc" cx="1000" cy="1060" r="260"></circle>\n<circle class="bc" cx="1000" cy="1060" r="360"></circle>\n<circle class="bc" cx="1000" cy="1060" r="440"></circle>\n<circle class="bc" cx="1000" cy="1060" r="520"></circle>\n<line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>\n<line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>\n<line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>\n<line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>\n\n<g style="filter: blur(3px);">\n  <rect\n    width="100%"\n    height="100%"\n    fill="white"\n    mask="url(#starsmask)"\n    clip-path="url(#starsclip)"\n  ></rect>\n  <g transform="translate(1000 1060)">\n'
+        '"></feTurbulence>\n  <feColorMatrix\n    values="0 0 0 7 -4  0 0 0 7 -4  0 0 0 7 -4  0 0 0 0 1"\n  ></feColorMatrix>\n</filter>\n<clipPath id="starsclip">\n  <circle cx="1000" cy="1060" r="520"></circle>\n</clipPath>\n<mask id="starsmask">\n  <g filter="url(#stars)" transform="scale(2)">\n    <rect width="100%" height="100%"></rect>\n  </g>\n</mask>\n\n<circle class="bc" cx="1000" cy="1060" r="260"></circle>\n<circle class="bc" cx="1000" cy="1060" r="360"></circle>\n<circle class="bc" cx="1000" cy="1060" r="440"></circle>\n<circle class="bc" cx="1000" cy="1060" r="520"></circle>\n<line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>\n<line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>\n<line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>\n<line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>\n\n<g style="filter: blur(2px);">\n  <rect\n    width="100%"\n    height="100%"\n    fill="white"\n    mask="url(#starsmask)"\n    clip-path="url(#starsclip)"\n  ></rect>\n</g>'
       )
     );
-    for (uint256 __i; __i < __input.planets.length; __i++) {
-      __result = string(
-        abi.encodePacked(
-          __result,
-          '      <circle cx="',
-          __input.planets[__i].x,
-          '" cy="',
-          __input.planets[__i].y,
-          '" r="11" fill="white"></circle>\n'
-        )
-      );
-    }
-    __result = string(abi.encodePacked(__result, "  </g></g>"));
   }
 
   function uint2str(uint256 _i) internal pure returns (string memory) {
