@@ -117,7 +117,7 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<g transform="translate(1000 1060)">\n  <defs>\n    <linearGradient id="aspectgradient" x1="0%" y1="0%" x2="100%" y2="0%">\n      <stop offset="0%" stop-color="#FFFFF0"></stop>\n      <stop offset="100%" stop-color="#BFBDB1"></stop>\n    </linearGradient>\n  </defs>\n  <g style="filter: blur(5px);">\n'
+        '<g transform="translate(1000 1060)">\n  <defs>\n    <linearGradient id="aspectgradient">\n      <stop offset="0%" stop-color="#FFFFF0"></stop>\n      <stop offset="100%" stop-color="#BFBDB1"></stop>\n    </linearGradient>\n  </defs>\n  <g style="filter: blur(5px);">\n'
       )
     );
     for (uint256 __i; __i < __input.planets.length; __i++) {

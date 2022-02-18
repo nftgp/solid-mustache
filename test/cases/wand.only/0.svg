@@ -95,7 +95,7 @@
   </g>
 </g><g transform="translate(1000 1060)">
   <defs>
-    <linearGradient id="aspectgradient" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="aspectgradient">
       <stop offset="0%" stop-color="#FFFFF0"></stop>
       <stop offset="100%" stop-color="#BFBDB1"></stop>
     </linearGradient>
