@@ -7,6 +7,7 @@ contract Template {
     string starsSeed;
     Stone stone;
     Planet[] planets;
+    Aspect[] aspects;
     Halo halo;
     string title;
   }
@@ -27,6 +28,13 @@ contract Template {
   struct Planet {
     string x;
     string y;
+  }
+
+  struct Aspect {
+    string x1;
+    string y1;
+    string x2;
+    string y2;
   }
 
   struct Halo {
@@ -81,7 +89,7 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<def>\n  <path\n    d="M58.7687 76.7949C110.299 88.0702 154.043 62.7974 190 0.976313L110 139.54C77.1838 120.42 37.9799 109.915 -3.21719e-05 110.066L-1.0516e-05 70.0661C19.718 70.0595 39.5625 72.3317 58.7687 76.7949Z"\n    fill="#9A9EA7"\n    id="h0"\n  ></path>\n  <circle cx="100" cy="-50" r="20" fill="#9A9EA7" id="h1"></circle>\n</def>\n\n<g transform="translate(1000 1060)">\n'
+        '<defs>\n  <path\n    d="M58.7687 76.7949C110.299 88.0702 154.043 62.7974 190 0.976313L110 139.54C77.1838 120.42 37.9799 109.915 -3.21719e-05 110.066L-1.0516e-05 70.0661C19.718 70.0595 39.5625 72.3317 58.7687 76.7949Z"\n    fill="#9A9EA7"\n    id="h0"\n  ></path>\n  <circle cx="100" cy="-50" r="20" fill="#9A9EA7" id="h1"></circle>\n</defs>\n\n<g transform="translate(1000 1060)">\n'
       )
     );
     for (uint256 __i; __i < __input.rhythm.length; __i++) {
@@ -109,18 +117,35 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<g transform="translate(1000 1060)" style="filter: blur(5px);">\n'
+        '<g transform="translate(1000 1060)">\n  <defs>\n    <linearGradient id="aspectgradient" x1="0%" y1="0%" x2="100%" y2="0%">\n      <stop offset="0%" stop-color="#FFFFF0"></stop>\n      <stop offset="100%" stop-color="#BFBDB1"></stop>\n    </linearGradient>\n  </defs>\n  <g style="filter: blur(5px);">\n'
       )
     );
     for (uint256 __i; __i < __input.planets.length; __i++) {
       __result = string(
         abi.encodePacked(
           __result,
-          '    <circle cx="',
+          '      <circle cx="',
           __input.planets[__i].x,
           '" cy="',
           __input.planets[__i].y,
           '" r="11" fill="white"></circle>\n'
+        )
+      );
+    }
+    __result = string(abi.encodePacked(__result, "  </g>\n"));
+    for (uint256 __i_2; __i_2 < __input.aspects.length; __i_2++) {
+      __result = string(
+        abi.encodePacked(
+          __result,
+          '    <line\n      x1="',
+          __input.aspects[__i_2].x1,
+          '"\n      y1="',
+          __input.aspects[__i_2].y1,
+          '"\n      x2="',
+          __input.aspects[__i_2].x2,
+          '"\n      y2="',
+          __input.aspects[__i_2].y2,
+          '"\n      stroke="url(#aspectgradient)"\n      stroke-width="10"\n      stroke-linecap="round"\n    ></line>\n'
         )
       );
     }
