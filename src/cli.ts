@@ -7,11 +7,11 @@ import { hideBin } from "yargs/helpers"
 import { compile } from "./compile"
 
 const { argv } = yargs(hideBin(process.argv)).command(
-  "* <template_file> [options]",
+  "* <template-file> [options]",
   "test",
   (yargs) =>
     yargs
-      .positional("template_file", {
+      .positional("template-file", {
         type: "string",
         describe: "the template file to compile",
         demandOption: true,
@@ -21,17 +21,80 @@ const { argv } = yargs(hideBin(process.argv)).command(
         type: "string",
         description: "The path to write the compiled .sol file to",
       })
+      .option("name", {
+        alias: "n",
+        type: "string",
+        description: "The name of the compiled library/contract",
+      })
+      .option("condense", {
+        alias: "c",
+        type: "boolean",
+        description:
+          "Condense sequences of consecutive whitespace into a single space char",
+      })
+      .option("partials", {
+        alias: "p",
+        array: true,
+        type: "string",
+        description:
+          "Paths to template partials. Registers the partials under their respective file names (without extension).",
+      })
+      .option("print-width", {
+        type: "number",
+        default: 80,
+        description: "Specify the line length that the printer will wrap on.",
+      })
+      .option("tab-width", {
+        type: "number",
+        default: 2,
+        description: "Specify the number of spaces per indentation-level.",
+      })
+      .option("use-tabs", {
+        type: "boolean",
+        description: "Indent lines with tabs instead of spaces.",
+      })
+      .option("single-quote", {
+        type: "boolean",
+        description: "Use single quotes instead of double quotes.",
+      })
+      .option("no-bracket-spacing", {
+        type: "boolean",
+        description: "Do not print spaces between brackets.",
+      })
+      .option("no-explicit-types", {
+        type: "boolean",
+        description: "Use type aliases (`uint`, `int`, etc.).",
+      })
 )
 
 const main = async () => {
-  const { template_file, out } = await argv
-  const templatePath = path.resolve(template_file)
+  const {
+    templateFile,
+    out,
+    name,
+    condense,
+    partials,
+    noBracketSpacing,
+    noExplicitTypes,
+    ...otherFormatOptions
+  } = await argv
+
+  const templatePath = path.resolve(templateFile)
   const templateContent = readFileSync(templatePath, {
     encoding: "utf8",
     flag: "r",
   })
 
-  const solContent = compile(templateContent)
+  const solContent = compile(templateContent, {
+    name,
+    partials: partials && loadPartials(partials),
+    condenseWhitespace: condense,
+    format: {
+      bracketSpacing: !noBracketSpacing,
+      explicitTypes: !noExplicitTypes,
+      ...otherFormatOptions,
+    },
+  })
   const outputPath = getOutputPath(templatePath, out)
   writeFile(outputPath, solContent)
 
@@ -64,4 +127,17 @@ function getOutputPath(templatePath: string, out: string | undefined) {
   }
 
   return path.resolve(out)
+}
+
+function loadPartials(partials: string[]) {
+  const result: Record<string, string> = {}
+  partials.forEach((pathString) => {
+    const partialPath = path.resolve(pathString)
+    const [name] = basename(partialPath).split(".")
+    result[name] = readFileSync(partialPath, {
+      encoding: "utf8",
+      flag: "r",
+    })
+  })
+  return result
 }

@@ -60,7 +60,7 @@ interface FormatOptions {
   useTabs?: boolean
   singleQuote?: boolean
   bracketSpacing?: boolean
-  explicitTypes?: "always" | "never" | "preserve"
+  explicitTypes?: boolean
 }
 interface Options {
   /** Assign a custom name to the library/contract (default: "Template") */
@@ -127,7 +127,8 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     plugins: [prettierPluginSolidity],
     parser: "solidity-parse",
     ...options.format,
-  })
+    explicitTypes: options.format?.explicitTypes === false ? "never" : "always",
+  } as Parameters<typeof format>[1])
 
   /** AST processing function sharing access to options and usedPartials variables via JS function scope */
 
