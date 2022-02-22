@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "fs"
 import path, { basename, dirname, extname } from "path"
 
+import glob from "glob"
 import yargs from "yargs"
 import { hideBin } from "yargs/helpers"
 
@@ -34,10 +35,9 @@ const { argv } = yargs(hideBin(process.argv)).command(
       })
       .option("partials", {
         alias: "p",
-        array: true,
         type: "string",
         description:
-          "Paths to template partials. Registers the partials under their respective file names (without extension).",
+          "Glob pattern for partial template files. Registers the partials under their respective file names (without extension).",
       })
       .option("print-width", {
         type: "number",
@@ -85,9 +85,11 @@ const main = async () => {
     flag: "r",
   })
 
+  const defaultPartials = `${dirname(templatePath)}/*.partial.hbs`
+
   const solContent = compile(templateContent, {
     name,
-    partials: partials && loadPartials(partials),
+    partials: loadPartials(partials || defaultPartials),
     condenseWhitespace: condense,
     format: {
       bracketSpacing: !noBracketSpacing,
@@ -129,9 +131,10 @@ function getOutputPath(templatePath: string, out: string | undefined) {
   return path.resolve(out)
 }
 
-function loadPartials(partials: string[]) {
+function loadPartials(pattern: string) {
+  const files = glob.sync(pattern)
   const result: Record<string, string> = {}
-  partials.forEach((pathString) => {
+  files.forEach((pathString) => {
     const partialPath = path.resolve(pathString)
     const [name] = basename(partialPath).split(".")
     result[name] = readFileSync(partialPath, {
