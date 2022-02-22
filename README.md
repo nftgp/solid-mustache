@@ -10,9 +10,37 @@
   - conditionals: `if` & `unless`
   - [partials](https://handlebarsjs.com/guide/partials.html#basic-partials)
 
+## How to use
+
+### Installation
+
+Add solid-mustache as a dev dependency. With npm:
+
+```bash
+npm install --save-dev solid-mustache
+```
+
+Or with yarn:
+
+```bash
+yarn add -D solid-mustache
+```
+
+### Compile template file
+
+To compile a template file to Solidity
+
+## API
+
+### CLI
+
+### JavaScript
+
 ## Contribute
 
-The goal is maximum compatibility with [handlebars](https://handlebarsjs.com).
+This package aims to be compatible with [handlebars](https://handlebarsjs.com)..
+Specifically, every template that can be compiled with solid-mustache shall also be supported in handlebars.
+The inverse is not necessary, but we aim for it as far as it's reasonable.
 If you see unexpected rendering results for your templates, submit an issue or, even better, create a PR adding your template as new test case in [test/cases](./test/cases).
 
 ### How test cases are structured

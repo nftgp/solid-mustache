@@ -2,6 +2,16 @@
   "name": "solid-mustache",
   "version": "1.0.0",
   "description": "{{mustache}} templates compiling to Solidity",
+  "bin": "./bin/solid-mustache.js",
+  "main": "build/cjs/index.js",
+  "typings": "build/cjs/index.d.ts",
+  "module": "build/esm/index.js",
+  "files": [
+    "bin",
+    "build",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "prepare": "yarn build",
     "prebuild": "rimraf build",
@@ -18,17 +28,16 @@
     "test:watch": "mocha -w",
     "test:update": "UPDATE_SNAPSHOTS=true mocha -w"
   },
-  "repository": {
-    "type": "git"
-  },
-  "author": "jan-felix.schwarz@gnosis.io",
-  "license": "LGPL-3.0+",
+  "repository": "git@github.com:nftgp/solid-mustache.git",
+  "author": "Jan-Felix Schwarz",
+  "license": "MIT",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.0.0",
     "@types/node": "^17.0.8",
     "@types/prettier": "^2.4.3",
+    "@types/yargs": "^17.0.8",
     "@typescript-eslint/eslint-plugin": "^5.9.0",
     "@typescript-eslint/parser": "^5.9.0",
     "chai": "^4.3.4",
@@ -46,7 +55,6 @@
   },
   "dependencies": {
     "@handlebars/parser": "^2.1.0",
-    "@types/yargs": "^17.0.8",
     "prettier": "^2.5.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "yargs": "^17.3.1"
