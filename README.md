@@ -53,12 +53,13 @@ Condense sequences of consecutive whitespace characters into a single space char
 Register [partials](https://handlebarsjs.com/guide/#partials).
 
 When using the CLI, partials are specified as paths to the partial template files. The partials are registered under their respective file names (without extension).
+By default, a glob pattern is used based on the dirname of the template file and the filename pattern `**.partial.hbs`.
 
-When using the API, partials are specified as an object, where keys are the partial names and values the partial template strings.
+When using the API, partials are specified as an object, where keys are the partial names and values are the partial template strings.
 
-| Default | CLI Override                     | API Override                              |
-| ------- | -------------------------------- | ----------------------------------------- |
-|         | `--partials <path0> <path1> ...` | `partials: { <name0>: <template0>, ... }` |
+| Default | CLI Override        | API Override                              |
+| ------- | ------------------- | ----------------------------------------- |
+|         | `--partials <glob>` | `partials: { <name0>: <template0>, ... }` |
 
 #### Print Width
 
