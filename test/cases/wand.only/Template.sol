@@ -133,18 +133,18 @@ contract Template {
       );
     }
     __result = string(abi.encodePacked(__result, "  </g>\n"));
-    for (uint256 __i_2; __i_2 < __input.aspects.length; __i_2++) {
+    for (uint256 __i2; __i2 < __input.aspects.length; __i2++) {
       __result = string(
         abi.encodePacked(
           __result,
           '    <line\n      x1="',
-          intToString(__input.aspects[__i_2].x1),
+          intToString(__input.aspects[__i2].x1),
           '"\n      y1="',
-          intToString(__input.aspects[__i_2].y1),
+          intToString(__input.aspects[__i2].y1),
           '"\n      x2="',
-          intToString(__input.aspects[__i_2].x2),
+          intToString(__input.aspects[__i2].x2),
           '"\n      y2="',
-          intToString(__input.aspects[__i_2].y2),
+          intToString(__input.aspects[__i2].y2),
           '"\n      stroke="url(#aspectgradient)"\n      stroke-width="10"\n      stroke-linecap="round"\n    ></line>\n'
         )
       );

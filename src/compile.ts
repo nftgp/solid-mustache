@@ -766,13 +766,14 @@ const singularize = (str: string) =>
   str.endsWith("s") ? str.substring(0, str.length - 1) : str
 
 const incrementName = (str: string) => {
-  const i = str.lastIndexOf("_")
-  const counter = Number(str.substring(i + 1))
-  if (isNaN(counter)) {
-    return `${str}_2`
-  } else {
-    return `${str.substring(0, i)}${counter + 1}`
+  const match = str.match(/^(\w+?)(\d*)$/)
+  if (!match) {
+    throw new Error(`Unexpected var name: ${str}`)
   }
+  const [, base, counter] = match
+  let i = counter ? Number(counter) : 1
+  if (isNaN(i)) i = 1
+  return `${base}${i + 1}`
 }
 
 const condenseWhitespace = (str: string) => str.replace(/\s+/g, " ")
