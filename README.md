@@ -1,4 +1,4 @@
-# Solid Mustache
+# <img src="solid-mustache-logo.png" alt="logo" height="40" align="left" /> Solid Mustache
 
 {{mustache}} templates compiling to Solidity
 
