@@ -1,4 +1,4 @@
-# Solid Mustache
+# <img src="solid-mustache-logo.png" alt="logo" height="40" align="left" /> Solid Mustache
 
 {{mustache}} templates compiling to Solidity
 
@@ -91,7 +91,7 @@ The compiler auto-generates a struct type for the input data argument to the tem
 It uses some heuristics for choosing appropriate types for struct fields:
 
 | condition                              | example           | type chosen                                     |
-| -------------------------------------- | ----------------- | ----------------------------------------------- |
+| :------------------------------------- | :---------------- | :---------------------------------------------- |
 | simple output                          | `{{title}}`       | `string title;`                                 |
 | reference to field in path expression  | `{{person.name}}` | `Person person;` (creates new struct: `Person`) |
 | reference via index in path expression | `{{items[0]}}`    | `string[] items;`                               |
@@ -102,14 +102,14 @@ Out of gas cost considerations it might be preferable to use fixed length types 
 This can be achieved by using built-in helper syntax:
 
 | condition                       | example                    | type chosen        |
-| ------------------------------- | -------------------------- | ------------------ |
+| :------------------------------ | :------------------------- | :----------------- |
 | iterator with `length` hash arg | `{{#each items length=4}}` | `string[4] title;` |
 | `bytes<N>` helper               | `{{bytes8 title}}`         | `bytes8 title;`    |
 
 Templates also support integer to string conversion, so that input fields can be marked as `uint`/`int`:
 
 | condition        | example            | type chosen     |
-| ---------------- | ------------------ | --------------- |
+| :--------------- | :----------------- | :-------------- |
 | `uint<N>` helper | `{{uint number}}`  | `uint number;`  |
 | `int<N>` helper  | `{{int16 number}}` | `int16 number;` |
 
