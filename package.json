@@ -1,6 +1,6 @@
 {
   "name": "solid-mustache",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "{{mustache}} templates compiling to Solidity",
   "bin": "./bin/solid-mustache.js",
   "main": "build/cjs/index.js",
