@@ -55,12 +55,17 @@ interface FormatOptions {
   bracketSpacing?: boolean
   explicitTypes?: boolean
 }
+
 interface Options {
   /** Assign a custom name to the library/contract (default: "Template") */
   name?: string
+  /** Define the solidity pragma (default: "^0.8.6") */
+  solidityPragma?: string
+  /** Define the custom header for the .sol file, such as a SPDX-License-Identifier comment */
+  header?: string
   /** Set to true to compile into a contract rather than a library */
   contract?: boolean
-  /** Allows providing additional templates that can be used via partial expressions */
+  /** Allows providing additional templates that can be used via partial call expressions */
   partials?: Record<string, string>
   /** Set to true to condense sequences of whitespace into single space, saving some contract size */
   condenseWhitespace?: boolean
@@ -95,9 +100,8 @@ export const compile = (template: string, options: Options = {}): string => {
     .map((partial) => solDefinePartial(partial, typeNames))
     .join("\n\n")
 
-  const solidityCode = `
-// SPDX-License-Identifier: LGPL-3.0-only
-pragma solidity ^0.8.6;
+  const solidityCode = `${options.header || ""}
+pragma solidity ${options.solidityPragma || "^0.8.6"};
 
 ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 

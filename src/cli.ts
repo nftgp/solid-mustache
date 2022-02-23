@@ -27,6 +27,18 @@ const { argv } = yargs(hideBin(process.argv)).command(
         type: "string",
         description: "The name of the compiled library/contract",
       })
+      .option("solidity-pragma", {
+        alias: "s",
+        type: "string",
+        default: "^0.8.6",
+        description: "Define the solidity pragma",
+      })
+      .option("header", {
+        alias: "h",
+        type: "string",
+        description:
+          "Define the custom header for the .sol file, such as a SPDX-License-Identifier comment",
+      })
       .option("condense", {
         alias: "c",
         type: "boolean",
@@ -72,6 +84,8 @@ const main = async () => {
     templateFile,
     out,
     name,
+    solidityPragma,
+    header,
     condense,
     partials,
     noBracketSpacing,
@@ -89,6 +103,8 @@ const main = async () => {
 
   const solContent = compile(templateContent, {
     name,
+    solidityPragma,
+    header,
     partials: loadPartials(partials || defaultPartials),
     condenseWhitespace: condense,
     format: {
