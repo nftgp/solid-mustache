@@ -61,7 +61,7 @@ interface Options {
   name?: string
   /** Define the solidity pragma (default: "^0.8.6") */
   solidityPragma?: string
-  /** Define the custom header for the .sol file, such as a SPDX-License-Identifier comment */
+  /** Define the custom header for the .sol file (default: "// SPDX-License-Identifier: UNLICENSED") */
   header?: string
   /** Set to true to compile into a contract rather than a library */
   contract?: boolean
@@ -100,8 +100,13 @@ export const compile = (template: string, options: Options = {}): string => {
     .map((partial) => solDefinePartial(partial, typeNames))
     .join("\n\n")
 
-  const solidityCode = `${options.header || ""}
-pragma solidity ${options.solidityPragma || "^0.8.6"};
+  const {
+    header = "// SPDX-License-Identifier: UNLICENSED",
+    solidityPragma = "^0.8.6",
+  } = options
+
+  const solidityCode = `${header}
+pragma solidity ${solidityPragma};
 
 ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
@@ -347,7 +352,10 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
     let partial = usedPartials.find((p) => p.name === partialName)
     if (!partial) {
-      const ast = parse(partialTemplate)
+      const preprocessedPartialTemplate = options.condenseWhitespace
+        ? condenseWhitespace(partialTemplate)
+        : partialTemplate
+      const ast = parse(preprocessedPartialTemplate)
       const inputType = resolveType(scope.inputType, contextPath)
 
       partial = {
