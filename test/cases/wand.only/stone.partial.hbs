@@ -5,7 +5,7 @@
   <feTurbulence
     baseFrequency="0.005 0.01"
     numOctaves="3"
-    seed="{{seed}}"
+    seed="{{uint seed}}"
   ></feTurbulence>
   <feDiffuseLighting lighting-color="{{color}}" surfaceScale="10">
     <feDistantLight elevation="60"></feDistantLight>
@@ -29,15 +29,15 @@
       attributeName="transform"
       attributeType="XML"
       type="translate"
-      values="0 0;0 {{#northernHemisphere}}-{{/northernHemisphere}}{{uint2str seasonsAmplitude}};0 0"
+      values="0 0;0 {{#northernHemisphere}}-{{/northernHemisphere}}{{uint seasonsAmplitude}};0 0"
       dur="30779326s"
-      begin="-{{uint2str secondInYear}}s"
+      begin="-{{uint secondInYear}}s"
       repeatCount="indefinite"
     ></animateTransform>
     <circle r="1045" fill="url(#sunshadow)">
       <animateMotion
         dur="86400s"
-        begin="-{{uint2str secondInDay}}s"
+        begin="-{{uint secondInDay}}s"
         repeatCount="indefinite"
         path="M 1000 800 A 260 260 0 0 1 1000 1320 A 260 260 0 0 1 1000 800 z"
       ></animateMotion>

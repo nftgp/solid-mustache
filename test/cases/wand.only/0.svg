@@ -101,64 +101,64 @@
     </linearGradient>
   </defs>
   <g style="filter: blur(5px);">
-      <circle cx="-114" cy=" 370" r="11" fill="white"></circle>
-      <circle cx="-225" cy=" 334" r="11" fill="white"></circle>
-      <circle cx="-227" cy=" 379" r="11" fill="white"></circle>
-      <circle cx=" 121" cy=" 295" r="11" fill="white"></circle>
-      <circle cx="-019" cy=" 357" r="11" fill="white"></circle>
-      <circle cx=" 361" cy=" 013" r="11" fill="white"></circle>
-      <circle cx=" 176" cy=" 259" r="11" fill="white"></circle>
-      <circle cx="-156" cy=" 388" r="11" fill="white"></circle>
+      <circle cx="-114" cy="370" r="11" fill="white"></circle>
+      <circle cx="-225" cy="334" r="11" fill="white"></circle>
+      <circle cx="-227" cy="379" r="11" fill="white"></circle>
+      <circle cx="121" cy="295" r="11" fill="white"></circle>
+      <circle cx="-19" cy="357" r="11" fill="white"></circle>
+      <circle cx="361" cy="13" r="11" fill="white"></circle>
+      <circle cx="176" cy="259" r="11" fill="white"></circle>
+      <circle cx="-156" cy="388" r="11" fill="white"></circle>
   </g>
     <line
-      x1=" 259"
-      y1=" 026"
-      x2="-091"
+      x1="259"
+      y1="26"
+      x2="-91"
       y2="-244"
       stroke="url(#aspectgradient)"
       stroke-width="10"
       stroke-linecap="round"
     ></line>
     <line
-      x1=" 259"
-      y1=" 026"
+      x1="259"
+      y1="26"
       x2="-259"
-      y2="-026"
+      y2="-26"
       stroke="url(#aspectgradient)"
       stroke-width="10"
       stroke-linecap="round"
     ></line>
     <line
-      x1=" 083"
-      y1=" 247"
-      x2=" 084"
-      y2=" 246"
+      x1="83"
+      y1="247"
+      x2="84"
+      y2="246"
       stroke="url(#aspectgradient)"
       stroke-width="10"
       stroke-linecap="round"
     ></line>
     <line
-      x1=" 083"
-      y1=" 247"
-      x2=" 258"
-      y2=" 034"
+      x1="83"
+      y1="247"
+      x2="258"
+      y2="34"
       stroke="url(#aspectgradient)"
       stroke-width="10"
       stroke-linecap="round"
     ></line>
     <line
-      x1=" 087"
-      y1=" 245"
-      x2=" 258"
-      y2=" 030"
+      x1="87"
+      y1="245"
+      x2="258"
+      y2="30"
       stroke="url(#aspectgradient)"
       stroke-width="10"
       stroke-linecap="round"
     ></line>
     <line
-      x1=" 248"
-      y1=" 077"
-      x2=" 191"
+      x1="248"
+      y1="77"
+      x2="191"
       y2="-177"
       stroke="url(#aspectgradient)"
       stroke-width="10"

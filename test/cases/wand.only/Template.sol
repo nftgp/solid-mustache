@@ -4,10 +4,10 @@ pragma solidity ^0.8.6;
 contract Template {
   struct __Input {
     Background background;
-    string starsSeed;
+    uint256 starsSeed;
     Stone stone;
-    Planet[] planets;
-    Aspect[] aspects;
+    Planet[8] planets;
+    Aspect[6] aspects;
     Halo halo;
     string title;
   }
@@ -17,7 +17,7 @@ contract Template {
   }
 
   struct Stone {
-    string seed;
+    uint256 seed;
     string color;
     bool northernHemisphere;
     uint256 seasonsAmplitude;
@@ -26,19 +26,19 @@ contract Template {
   }
 
   struct Planet {
-    string x;
-    string y;
+    int16 x;
+    int16 y;
   }
 
   struct Aspect {
-    string x1;
-    string y1;
-    string x2;
-    string y2;
+    int16 x1;
+    int16 y1;
+    int16 x2;
+    int16 y2;
   }
 
   struct Halo {
-    Rhythm[] rhythm;
+    Rhythm[24] rhythm;
   }
 
   struct Rhythm {
@@ -97,7 +97,7 @@ contract Template {
         abi.encodePacked(
           __result,
           '    <g\n      style="transform: rotate(calc(',
-          uint2str(__i),
+          uintToString(__i),
           ' * 15deg)) translateY(-600px);"\n    >\n      ',
           __input.rhythm[__i].halo0 ? '<use href="#h0"></use>' : "",
           "\n      ",
@@ -125,9 +125,9 @@ contract Template {
         abi.encodePacked(
           __result,
           '      <circle cx="',
-          __input.planets[__i].x,
+          intToString(__input.planets[__i].x),
           '" cy="',
-          __input.planets[__i].y,
+          intToString(__input.planets[__i].y),
           '" r="11" fill="white"></circle>\n'
         )
       );
@@ -138,13 +138,13 @@ contract Template {
         abi.encodePacked(
           __result,
           '    <line\n      x1="',
-          __input.aspects[__i_2].x1,
+          intToString(__input.aspects[__i_2].x1),
           '"\n      y1="',
-          __input.aspects[__i_2].y1,
+          intToString(__input.aspects[__i_2].y1),
           '"\n      x2="',
-          __input.aspects[__i_2].x2,
+          intToString(__input.aspects[__i_2].x2),
           '"\n      y2="',
-          __input.aspects[__i_2].y2,
+          intToString(__input.aspects[__i_2].y2),
           '"\n      stroke="url(#aspectgradient)"\n      stroke-width="10"\n      stroke-linecap="round"\n    ></line>\n'
         )
       );
@@ -161,16 +161,16 @@ contract Template {
       abi.encodePacked(
         __result,
         '<clipPath id="stoneclip">\n  <circle cx="1000" cy="1060" r="262"></circle>\n</clipPath>\n<filter id="texture">\n  <feTurbulence\n    baseFrequency="0.005 0.01"\n    numOctaves="3"\n    seed="',
-        __input.seed,
+        uintToString(__input.seed),
         '"\n  ></feTurbulence>\n  <feDiffuseLighting lighting-color="',
         __input.color,
         '" surfaceScale="10">\n    <feDistantLight elevation="60"></feDistantLight>\n  </feDiffuseLighting>\n  <feComposite operator="in" in2="SourceGraphic"></feComposite>\n</filter>\n<radialGradient id="ambientshadow">\n  <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>\n  <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop>\n</radialGradient>\n<radialGradient id="sunshadow">\n  <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop>\n  <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.75)"></stop>\n</radialGradient>\n<circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle>\n<circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle>\n\n<g clip-path="url(#stoneclip)">\n  <g>\n    <animateTransform\n      attributeName="transform"\n      attributeType="XML"\n      type="translate"\n      values="0 0;0 ',
         __input.northernHemisphere ? "-" : "",
-        uint2str(__input.seasonsAmplitude),
+        uintToString(__input.seasonsAmplitude),
         ';0 0"\n      dur="30779326s"\n      begin="-',
-        uint2str(__input.secondInYear),
+        uintToString(__input.secondInYear),
         's"\n      repeatCount="indefinite"\n    ></animateTransform>\n    <circle r="1045" fill="url(#sunshadow)">\n      <animateMotion\n        dur="86400s"\n        begin="-',
-        uint2str(__input.secondInDay),
+        uintToString(__input.secondInDay),
         's"\n        repeatCount="indefinite"\n        path="M 1000 800 A 260 260 0 0 1 1000 1320 A 260 260 0 0 1 1000 800 z"\n      ></animateMotion>\n    </circle>\n  </g>\n</g>'
       )
     );
@@ -185,7 +185,7 @@ contract Template {
       abi.encodePacked(
         __result,
         '<filter id="stars">\n  <feTurbulence baseFrequency="0.1" seed="',
-        __input.starsSeed,
+        uintToString(__input.starsSeed),
         '"></feTurbulence>\n  <feColorMatrix\n    values="0 0 0 7 -4  0 0 0 7 -4  0 0 0 7 -4  0 0 0 0 1"\n  ></feColorMatrix>\n</filter>\n<clipPath id="starsclip">\n  <circle cx="1000" cy="1060" r="520"></circle>\n</clipPath>\n<mask id="starsmask">\n  <g filter="url(#stars)" transform="scale(2)">\n    <rect width="100%" height="100%"></rect>\n  </g>\n</mask>\n\n<circle class="bc" cx="1000" cy="1060" r="260"></circle>\n<circle class="bc" cx="1000" cy="1060" r="360"></circle>\n<circle class="bc" cx="1000" cy="1060" r="440"></circle>\n<circle class="bc" cx="1000" cy="1060" r="520"></circle>\n<line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line>\n<line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line>\n<line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line>\n<line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line>\n\n<g style="filter: blur(2px);">\n  <rect\n    width="100%"\n    height="100%"\n    fill="white"\n    mask="url(#starsmask)"\n    clip-path="url(#starsclip)"\n  ></rect>\n</g>'
       )
     );
@@ -206,11 +206,18 @@ contract Template {
     );
   }
 
-  function uint2str(uint256 _i) internal pure returns (string memory) {
-    if (_i == 0) {
+  function intToString(int256 i) internal pure returns (string memory) {
+    if (i >= 0) {
+      return uintToString(uint256(i));
+    }
+    return string(abi.encodePacked("-", uintToString(uint256(-i))));
+  }
+
+  function uintToString(uint256 i) internal pure returns (string memory) {
+    if (i == 0) {
       return "0";
     }
-    uint256 j = _i;
+    uint256 j = i;
     uint256 len;
     while (j != 0) {
       len++;
@@ -218,12 +225,11 @@ contract Template {
     }
     bytes memory bstr = new bytes(len);
     uint256 k = len;
-    while (_i != 0) {
-      k = k - 1;
-      uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
-      bytes1 b1 = bytes1(temp);
-      bstr[k] = b1;
-      _i /= 10;
+    while (i != 0) {
+      k -= 1;
+      uint8 temp = (48 + uint8(i - (i / 10) * 10));
+      bstr[k] = bytes1(temp);
+      i /= 10;
     }
     return string(bstr);
   }

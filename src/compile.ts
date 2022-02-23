@@ -3,36 +3,29 @@ import { format } from "prettier"
 import prettierPluginSolidity from "prettier-plugin-solidity"
 
 type UnknownInput = { type: undefined }
-type StringInput = { type: "string" }
-type UintInput = { type: "uint" }
+type StringInput = { type: "string"; length?: number }
+type UintInput = { type: "uint"; length?: number }
+type IntInput = { type: "int"; length?: number }
 type BoolInput = { type: "bool" }
+
 type ArrayInput = {
   type: "array"
-  elementType:
-    | StringInput
-    | BoolInput
-    | UintInput
-    | StructInput
-    | ArrayInput
-    | UnknownInput
+  length?: number
+  elementType: InputType
 }
 type StructInput = {
   type: "struct"
   members: {
-    [field: string]:
-      | StringInput
-      | BoolInput
-      | UintInput
-      | ArrayInput
-      | StructInput
-      | UnknownInput
+    [field: string]: InputType
   }
 }
+
 type InputType =
   | UnknownInput
   | StringInput
   | BoolInput
   | UintInput
+  | IntInput
   | ArrayInput
   | StructInput
 
@@ -120,7 +113,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
   ${partialDefs}
 
-  ${SOL_UINT2STR}
+  ${SOL_INT_TO_STRING}
 }
 `
   return format(solidityCode, {
@@ -206,10 +199,19 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     }
 
     const path = statement.path as AST.PathExpression
-    if (path.original === "uint2str") {
+    const intMatch = path.original.match(/^(uint|int)(\d*)$/)
+    const bytesMatch = path.original.match(/^bytes(\d*)$/)
+    if (intMatch) {
+      const type = intMatch[1] as "uint" | "int"
+      const length = parseInt(intMatch[2])
       const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
-      narrowInput(scope.inputType, fullPath, "uint")
-      return [{ append: [`uint2str(${fullPath})`] }]
+      narrowInput(scope.inputType, fullPath, type, length)
+      return [{ append: [`${type}ToString(${fullPath})`] }]
+    } else if (bytesMatch) {
+      const length = parseInt(bytesMatch[1])
+      const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
+      narrowInput(scope.inputType, fullPath, "string", length)
+      return [{ append: [fullPath] }]
     } else {
       const fullPath = scope.resolve(path)
       narrowInput(scope.inputType, fullPath, "string")
@@ -285,12 +287,19 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     statement: AST.BlockStatement,
     scope: Scope
   ): Output[] {
-    const path = statement.params[0]
+    const { params, program, hash } = statement
+    const path = params[0]
     if (path.type !== "PathExpression") throw new Error("Unsupported")
     const pathExpr = path as AST.PathExpression
 
+    const lengthHashValue = hash?.pairs?.find((p) => p.key === "length")?.value
+    const length =
+      lengthHashValue?.type === "NumberLiteral"
+        ? (lengthHashValue as AST.NumberLiteral).value
+        : undefined
+
     const iterateeResolvedPath = scope.resolve(pathExpr)
-    narrowInput(scope.inputType, iterateeResolvedPath, "array")
+    narrowInput(scope.inputType, iterateeResolvedPath, "array", length)
 
     // find a unique index var name
     let indexVarName = "__i"
@@ -299,7 +308,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
     scope.addVar(indexVarName)
 
     const [itemVarAlias = "this", indexVarAlias = "@index"] =
-      statement.program.blockParams || []
+      program.blockParams || []
 
     const newScope = scope.dive(`${iterateeResolvedPath}[${indexVarName}]`, {
       [indexVarAlias]: indexVarName,
@@ -310,7 +319,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
       {
         line: `for(uint256 ${indexVarName}; ${indexVarName} < ${iterateeResolvedPath}.length; ${indexVarName}++) {`,
       },
-      ...processProgram(statement.program, newScope),
+      ...processProgram(program, newScope),
       {
         line: `}`,
       },
@@ -447,7 +456,8 @@ class Scope {
 function narrowInput(
   inputType: InputType,
   path: string, // example: __inputs.member[0].submember
-  narrowed: "string" | "array" | "bool" | "uint"
+  narrowed: "string" | "array" | "bool" | "uint" | "int",
+  length?: number
 ) {
   let type = inputType
   const [prefix, ...parts] = path.split(/\.|(?=\[)/g) // split at . and before [
@@ -517,6 +527,16 @@ function narrowInput(
   if (narrowed === "string" || narrowed === "bool" || narrowed === "uint") {
     Object.assign(type, {
       type: narrowed,
+    })
+  }
+
+  if (length) {
+    if (!["string", "uint", "int", "array"].includes(narrowed)) {
+      throw new Error(`${narrowed} type does not have length`)
+    }
+    Object.assign(type, {
+      type: narrowed,
+      length: Math.max(("length" in type && type.length) || 0, length),
     })
   }
 }
@@ -601,6 +621,7 @@ const generateTypeNames = (
       if (memberType.elementType.type === "array") {
         throw new Error("Multi-dimensional arrays are not supported in ABI")
       }
+      const length = memberType.length || ""
 
       if (memberType.elementType.type === "struct") {
         const structName = useExistingOrAddStruct(
@@ -608,14 +629,14 @@ const generateTypeNames = (
           memberType.elementType
         )
         result.push({
-          name: `${structName}[]`,
+          name: `${structName}[${length}]`,
           inputType: memberType,
         })
         generateTypeNames(memberType.elementType, result)
       } else {
         const elementTypeName = memberType.elementType.type || "string"
         result.push({
-          name: `${elementTypeName}[]`,
+          name: `${elementTypeName}[${length}]`,
           inputType: memberType,
         })
       }
@@ -626,6 +647,12 @@ const generateTypeNames = (
         inputType: memberType,
       })
       generateTypeNames(memberType, result)
+    } else if ("length" in memberType && memberType.length) {
+      const typeName = memberType.type === "string" ? "bytes" : memberType.type
+      result.push({
+        name: `${typeName}${memberType.length}`,
+        inputType: memberType,
+      })
     } else {
       result.push({
         name: memberType.type || "string",
@@ -676,24 +703,30 @@ const solDefinePartial = (partial: Partial, typeNames: TypeName[]) => {
   `
 }
 
-const SOL_UINT2STR = `function uint2str(uint _i) internal pure returns (string memory) {
-  if (_i == 0) {
-      return "0";
+const SOL_INT_TO_STRING = `function intToString(int256 i) internal pure returns (string memory) {
+  if (i >= 0) {
+    return uintToString(uint256(i));
   }
-  uint j = _i;
-  uint len;
+  return string(abi.encodePacked("-", uintToString(uint256(-i))));
+}
+
+function uintToString(uint256 i) internal pure returns (string memory) {
+  if (i == 0) {
+    return "0";
+  }
+  uint256 j = i;
+  uint256 len;
   while (j != 0) {
-      len++;
-      j /= 10;
+    len++;
+    j /= 10;
   }
   bytes memory bstr = new bytes(len);
-  uint k = len;
-  while (_i != 0) {
-      k = k-1;
-      uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-      bytes1 b1 = bytes1(temp);
-      bstr[k] = b1;
-      _i /= 10;
+  uint256 k = len;
+  while (i != 0) {
+    k -= 1;
+    uint8 temp = (48 + uint8(i - (i / 10) * 10));
+    bstr[k] = bytes1(temp);
+    i /= 10;
   }
   return string(bstr);
 }`
