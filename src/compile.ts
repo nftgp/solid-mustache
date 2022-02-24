@@ -1,6 +1,7 @@
 import { AST, parse } from "@handlebars/parser"
 import { format } from "prettier"
 import prettierPluginSolidity from "prettier-plugin-solidity"
+import { boolean } from "yargs"
 
 type UnknownInput = { type: undefined }
 type StringInput = { type: "string"; length?: number }
@@ -215,7 +216,7 @@ ${contract ? "contract" : "library"} ${name} {
     const bytesMatch = path.original.match(/^bytes(\d*)$/)
     if (intMatch) {
       const type = intMatch[1] as "uint" | "int"
-      const length = parseInt(intMatch[2])
+      const length = intMatch[2] ? parseInt(intMatch[2]) : undefined
       const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
       narrowInput(scope.inputType, fullPath, type, length)
       return [{ append: [`${type}ToString(${fullPath})`] }]
@@ -539,7 +540,7 @@ function narrowInput(
     })
   }
 
-  if (narrowed === "string" || narrowed === "bool" || narrowed === "uint") {
+  if (["string", "bool", "uint", "int"].includes(narrowed)) {
     Object.assign(type, {
       type: narrowed,
     })
@@ -550,7 +551,6 @@ function narrowInput(
       throw new Error(`${narrowed} type does not have length`)
     }
     Object.assign(type, {
-      type: narrowed,
       length: Math.max(("length" in type && type.length) || 0, length),
     })
   }

@@ -19,22 +19,21 @@ contract Template {
   struct Stone {
     uint256 seed;
     string color;
-    bool northernHemisphere;
-    uint256 seasonsAmplitude;
+    int256 seasonsAmplitude;
     uint256 secondInYear;
     uint256 secondInDay;
   }
 
   struct Planet {
-    int16 x;
-    int16 y;
+    int256 x;
+    int256 y;
   }
 
   struct Aspect {
-    int16 x1;
-    int16 y1;
-    int16 x2;
-    int16 y2;
+    int256 x1;
+    int256 y1;
+    int256 x2;
+    int256 y2;
   }
 
   struct Halo {
@@ -165,8 +164,7 @@ contract Template {
         '" ></feTurbulence> <feDiffuseLighting lighting-color="',
         __input.color,
         '" surfaceScale="10"> <feDistantLight elevation="60"></feDistantLight> </feDiffuseLighting> <feComposite operator="in" in2="SourceGraphic"></feComposite> </filter> <radialGradient id="ambientshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop> </radialGradient> <radialGradient id="sunshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.75)"></stop> </radialGradient> <circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle> <circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle> <g clip-path="url(#stoneclip)"> <g> <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0 0;0 ',
-        __input.northernHemisphere ? "-" : "",
-        uintToString(__input.seasonsAmplitude),
+        intToString(__input.seasonsAmplitude),
         ';0 0" dur="30779326s" begin="-',
         uintToString(__input.secondInYear),
         's" repeatCount="indefinite" ></animateTransform> <circle r="1045" fill="url(#sunshadow)"> <animateMotion dur="86400s" begin="-',
