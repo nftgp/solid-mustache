@@ -756,7 +756,9 @@ const compatible = (a: InputType, b: InputType): boolean => {
 
   if (a.type === "struct" && b.type === "struct") return membersMatch(a, b)
 
-  return a.type === b.type
+  const aLength = "length" in a ? a.length : undefined
+  const bLength = "length" in b ? b.length : undefined
+  return a.type === b.type && aLength === bLength
 }
 
 const membersMatch = (a: StructInput, b: StructInput): boolean =>

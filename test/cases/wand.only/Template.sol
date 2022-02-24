@@ -25,15 +25,15 @@ contract Template {
   }
 
   struct Planet {
-    int256 x;
-    int256 y;
+    int16 x;
+    int16 y;
   }
 
   struct Aspect {
-    int256 x1;
-    int256 y1;
-    int256 x2;
-    int256 y2;
+    int16 x1;
+    int16 y1;
+    int16 x2;
+    int16 y2;
   }
 
   struct Halo {
