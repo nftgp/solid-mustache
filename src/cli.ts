@@ -112,11 +112,10 @@ const main = async () => {
     header,
     partials: loadPartials(partials || defaultPartials),
     condenseWhitespace: condense,
-    format: {
-      bracketSpacing: !noBracketSpacing,
-      explicitTypes: !noExplicitTypes,
-      ...otherFormatOptions,
-    },
+
+    bracketSpacing: !noBracketSpacing,
+    explicitTypes: !noExplicitTypes,
+    ...otherFormatOptions,
   })
   const outputPath = getOutputPath(templatePath, out)
   writeFile(outputPath, solContent)

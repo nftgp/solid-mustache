@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import path, { dirname } from "path"
 
 import { expect } from "chai"
+import { cosmiconfigSync } from "cosmiconfig"
 import { Contract } from "ethers"
 import { ethers } from "hardhat"
 
@@ -9,8 +10,6 @@ import "@nomiclabs/hardhat-ethers"
 
 import prettierConfig from "../.prettierrc.json"
 import { compile } from "../src/compile"
-
-import { cosmiconfigSync } from "cosmiconfig"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const solc = require("solc")
