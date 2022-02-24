@@ -1,6 +1,6 @@
 # <img src="solid-mustache-logo.png" alt="logo" height="40" align="left" /> Solid Mustache
 
-{{mustache}} templates compiling to Solidity
+### {{mustache}} templates compiling to Solidity
 
 - Compiles templates to Solidity libraries
 - Supports the following mustache/handlebars expressions:
