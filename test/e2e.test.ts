@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs"
-import path from "path"
+import path, { dirname } from "path"
 
 import { expect } from "chai"
 import { Contract } from "ethers"
@@ -9,6 +9,8 @@ import "@nomiclabs/hardhat-ethers"
 
 import prettierConfig from "../.prettierrc.json"
 import { compile } from "../src/compile"
+
+import { cosmiconfigSync } from "cosmiconfig"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const solc = require("solc")
@@ -65,13 +67,16 @@ describe("end-to-end test suite", () => {
         return
       }
 
-      const template = readFileSync(
-        path.join(__dirname, "cases", name, templateFile.name),
-        {
-          encoding: "utf8",
-          flag: "r",
-        }
+      const templatePath = path.join(
+        __dirname,
+        "cases",
+        name,
+        templateFile.name
       )
+      const template = readFileSync(templatePath, {
+        encoding: "utf8",
+        flag: "r",
+      })
 
       const partialFiles = files.filter((dirent) =>
         dirent.name.endsWith(".partial.hbs")
@@ -96,13 +101,18 @@ describe("end-to-end test suite", () => {
         )
       }
 
+      const configFile = cosmiconfigSync("solid-mustache").search(
+        dirname(templatePath)
+      )
+
       let contract: Contract
 
       before(async () => {
         const contractSource = compile(template, {
+          ...configFile?.config,
           contract: true,
           partials,
-          format: prettierConfig,
+          ...prettierConfig,
         })
 
         writeFileSync(

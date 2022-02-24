@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "fs"
 import path, { basename, dirname, extname } from "path"
 
+import { cosmiconfigSync } from "cosmiconfig"
 import glob from "glob"
 import yargs from "yargs"
 import { hideBin } from "yargs/helpers"
@@ -25,7 +26,7 @@ const { argv } = yargs(hideBin(process.argv)).command(
       .option("name", {
         alias: "n",
         type: "string",
-        description: "The name of the compiled library/contract",
+        description: "The name to use for the compiled library",
       })
       .option("solidity-pragma", {
         alias: "s",
@@ -36,8 +37,8 @@ const { argv } = yargs(hideBin(process.argv)).command(
       .option("header", {
         alias: "h",
         type: "string",
-        description:
-          "Define the custom header for the .sol file, such as a SPDX-License-Identifier comment",
+        default: "// SPDX-License-Identifier: UNLICENSED",
+        description: "Define a custom header for the .sol file",
       })
       .option("condense", {
         alias: "c",
@@ -99,9 +100,13 @@ const main = async () => {
     flag: "r",
   })
 
-  const defaultPartials = `${dirname(templatePath)}/*.partial.hbs`
+  const dir = dirname(templatePath)
+  const configFile = cosmiconfigSync("solid-mustache").search(dir)
+
+  const defaultPartials = `${dir}/*.partial.hbs`
 
   const solContent = compile(templateContent, {
+    ...configFile,
     name,
     solidityPragma,
     header,

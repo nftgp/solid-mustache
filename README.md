@@ -155,23 +155,55 @@ npm run solid-mustache ./path/to/template.hbs
 
 The compiled template library will be written to `./path/to/template.sol`.
 
+### Configuration
+
+solid-mustache uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig) for configuration file support.
+This means you can configure it using any of the following ways:
+
+- A `"solid-mustache"` key in your package.json
+- A `.solid-mustacherc` file in JSON format.
+- A `.solid-mustacherc.json` file.
+- A `.solid-mustacherc.js`, `.solid-mustacherc.cjs`, `solid-mustache.config.js`, or `solid-mustache.config.cjs` file that exports an object using `module.exports`.
+
+The configuration file will be resolved starting from the location of the template file and searching up the file tree until a config file is found.
+
+All configuration options can also be specified as CLI arguments.
+CLI arguments override values from configuration files.
+Config files are not read if using solid-mustache via the JavaScript API.
+
 ## Options
 
 #### Name
 
 Specify the name of the generated Solidity library or template.
 
-| Default      | CLI Override      | API Override     |
-| ------------ | ----------------- | ---------------- |
-| `"Template"` | `--name <string>` | `name: <string>` |
+| Default      | Config field     | CLI Override      |
+| ------------ | ---------------- | ----------------- |
+| `"Template"` | `name: <string>` | `--name <string>` |
+
+#### Solidity pragma
+
+Define the Solidity pragma for the compiled .sol file.
+
+| Default     | Config field               | CLI Override                 |
+| ----------- | -------------------------- | ---------------------------- |
+| `"^0.8.6""` | `solidityPragma: <string>` | `--solidity-pragma <string>` |
+
+#### Header
+
+Define a custom header for the .sol file.
+
+| Default                                     | Config field       | CLI Override        |
+| ------------------------------------------- | ------------------ | ------------------- |
+| `"// SPDX-License-Identifier: UNLICENSED""` | `header: <string>` | `--header <string>` |
 
 #### Condense whitespace
 
 Condense sequences of consecutive whitespace characters into a single space character.
 
-| Default | CLI Override | API Override                 |
-| ------- | ------------ | ---------------------------- |
-| `false` | `--condense` | `condenseWhitespace: <bool>` |
+| Default | Config field                 | CLI Override |
+| ------- | ---------------------------- | ------------ |
+| `false` | `condenseWhitespace: <bool>` | `--condense` |
 
 #### <a name="partials-option"></a>Partials
 
@@ -182,57 +214,57 @@ By default, a glob pattern is used based on the dirname of the template file and
 
 When using the API, partials are specified as an object, where keys are the partial names and values are the partial template strings.
 
-| Default | CLI Override        | API Override                              |
-| ------- | ------------------- | ----------------------------------------- |
-|         | `--partials <glob>` | `partials: { <name0>: <template0>, ... }` |
+| Default | Config field                              | CLI Override        |
+| ------- | ----------------------------------------- | ------------------- |
+|         | `partials: { <name0>: <template0>, ... }` | `--partials <glob>` |
 
 #### Print Width
 
 Specify the line length that the printer will wrap on.
 
-| Default | CLI Override          | API Override        |
-| ------- | --------------------- | ------------------- |
-| `80`    | `--print-width <int>` | `printWidth: <int>` |
+| Default | Config field        | CLI Override          |
+| ------- | ------------------- | --------------------- |
+| `80`    | `printWidth: <int>` | `--print-width <int>` |
 
 #### Tab Width
 
 Specify the number of spaces per indentation-level.
 
-| Default | CLI Override        | API Override      |
-| ------- | ------------------- | ----------------- |
-| `2`     | `--tab-width <int>` | `tabWidth: <int>` |
+| Default | Config field      | CLI Override        |
+| ------- | ----------------- | ------------------- |
+| `2`     | `tabWidth: <int>` | `--tab-width <int>` |
 
 #### Tabs
 
 Indent lines with tabs instead of spaces.
 
-| Default | CLI Override | API Override      |
-| ------- | ------------ | ----------------- |
-| `false` | `--use-tabs` | `useTabs: <bool>` |
+| Default | Config field      | CLI Override |
+| ------- | ----------------- | ------------ |
+| `false` | `useTabs: <bool>` | `--use-tabs` |
 
 #### Quotes
 
 Use single quotes instead of double quotes.
 
-| Default | CLI Override     | API Override          |
-| ------- | ---------------- | --------------------- |
-| `false` | `--single-quote` | `singleQuote: <bool>` |
+| Default | Config field          | CLI Override     |
+| ------- | --------------------- | ---------------- |
+| `false` | `singleQuote: <bool>` | `--single-quote` |
 
 #### Bracket Spacing
 
 Print spaces between brackets.
 
-| Default | CLI Override           | API Override             |
-| ------- | ---------------------- | ------------------------ |
-| `true`  | `--no-bracket-spacing` | `bracketSpacing: <bool>` |
+| Default | Config field             | CLI Override           |
+| ------- | ------------------------ | ---------------------- |
+| `true`  | `bracketSpacing: <bool>` | `--no-bracket-spacing` |
 
 #### Explicit Types
 
 Use explicit types (`uint256`) rather than aliases (`uint`).
 
-| Default | CLI Override          | API Override            |
-| ------- | --------------------- | ----------------------- |
-| `true`  | `--no-explicit-types` | `explicitTypes: <bool>` |
+| Default | Config field            | CLI Override          |
+| ------- | ----------------------- | --------------------- |
+| `true`  | `explicitTypes: <bool>` | `--no-explicit-types` |
 
 ## API
 

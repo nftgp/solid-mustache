@@ -47,7 +47,21 @@ const INPUT_STRUCT_NAME = "__Input"
 const INPUT_VAR_NAME = "__input"
 const RESULT_VAR_NAME = "__result"
 
-interface FormatOptions {
+interface Options {
+  /** Assign a custom name to the library/contract (default: "Template") */
+  name?: string
+  /** Define the custom header for the .sol file (default: "// SPDX-License-Identifier: UNLICENSED") */
+  header?: string
+  /** Define the solidity pragma (default: "^0.8.6") */
+  solidityPragma?: string
+  /** Set to true to compile into a contract rather than a library */
+  contract?: boolean
+  /** Allows providing additional templates that can be used via partial call expressions */
+  partials?: Record<string, string>
+  /** Set to true to condense sequences of whitespace into single space, saving some contract size */
+  condenseWhitespace?: boolean
+
+  /* Formatting options for prettier */
   printWidth?: number
   tabWidth?: number
   useTabs?: boolean
@@ -56,25 +70,19 @@ interface FormatOptions {
   explicitTypes?: boolean
 }
 
-interface Options {
-  /** Assign a custom name to the library/contract (default: "Template") */
-  name?: string
-  /** Define the solidity pragma (default: "^0.8.6") */
-  solidityPragma?: string
-  /** Define the custom header for the .sol file (default: "// SPDX-License-Identifier: UNLICENSED") */
-  header?: string
-  /** Set to true to compile into a contract rather than a library */
-  contract?: boolean
-  /** Allows providing additional templates that can be used via partial call expressions */
-  partials?: Record<string, string>
-  /** Set to true to condense sequences of whitespace into single space, saving some contract size */
-  condenseWhitespace?: boolean
-  /** Formatting options for prettier */
-  format?: FormatOptions
-}
-
 export const compile = (template: string, options: Options = {}): string => {
-  const preprocessedTemplate = options.condenseWhitespace
+  const {
+    name = "Template",
+    header = "// SPDX-License-Identifier: UNLICENSED",
+    solidityPragma = "^0.8.6",
+    contract,
+    partials,
+    condenseWhitespace: shallCondenseWhitespace,
+
+    ...formatOptions
+  } = options
+
+  const preprocessedTemplate = shallCondenseWhitespace
     ? condenseWhitespace(template)
     : template
   const ast = parse(preprocessedTemplate)
@@ -100,15 +108,10 @@ export const compile = (template: string, options: Options = {}): string => {
     .map((partial) => solDefinePartial(partial, typeNames))
     .join("\n\n")
 
-  const {
-    header = "// SPDX-License-Identifier: UNLICENSED",
-    solidityPragma = "^0.8.6",
-  } = options
-
   const solidityCode = `${header}
 pragma solidity ${solidityPragma};
 
-${options.contract ? "contract" : "library"} ${options.name || "Template"} {
+${contract ? "contract" : "library"} ${name} {
 
   ${structDefs}
 
@@ -128,8 +131,8 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
   return format(solidityCode, {
     plugins: [prettierPluginSolidity],
     parser: "solidity-parse",
-    ...options.format,
-    explicitTypes: options.format?.explicitTypes === false ? "never" : "always",
+    ...formatOptions,
+    explicitTypes: formatOptions.explicitTypes === false ? "never" : "always",
   } as Parameters<typeof format>[1])
 
   /** AST processing function sharing access to options and usedPartials variables via JS function scope */
@@ -341,7 +344,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
   ): Output[] {
     if (statement.name.type !== "PathExpression") throw new Error("Unsupported")
     const partialName = statement.name.original
-    const partialTemplate = options.partials && options.partials[partialName]
+    const partialTemplate = partials && partials[partialName]
     if (!partialTemplate) {
       throw new Error(`Trying to use an unknown partial: ${partialName}`)
     }
@@ -352,7 +355,7 @@ ${options.contract ? "contract" : "library"} ${options.name || "Template"} {
 
     let partial = usedPartials.find((p) => p.name === partialName)
     if (!partial) {
-      const preprocessedPartialTemplate = options.condenseWhitespace
+      const preprocessedPartialTemplate = shallCondenseWhitespace
         ? condenseWhitespace(partialTemplate)
         : partialTemplate
       const ast = parse(preprocessedPartialTemplate)
