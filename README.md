@@ -5,8 +5,8 @@
 - Compiles templates to Solidity libraries
 - Supports the following mustache/handlebars expressions:
   - [path expressions](#template-expressions): `{{person.name}}`
-  - [conditionals](#conditionals): `if` & `unless`
-  - [iterators](#iterators): `each`
+  - [conditionals](#conditionals): `#if` & `#unless`
+  - [iterators](#iterators): `#each`
   - [partials](#partials): `{{> partial}}`
 - Uses [@handlebars/parser](https://github.com/handlebars-lang/handlebars-parser) for parsing mustache syntax
 
@@ -90,13 +90,13 @@ So in the example above `{{name}}` is evaluated as `planets[index].name`.
 The compiler auto-generates a struct type for the input data argument to the template's render function.
 It uses some heuristics for choosing appropriate types for struct fields:
 
-| condition                              | example           | type chosen                                     |
-| :------------------------------------- | :---------------- | :---------------------------------------------- |
-| simple output                          | `{{title}}`       | `string title;`                                 |
-| reference to field in path expression  | `{{person.name}}` | `Person person;` (creates new struct: `Person`) |
-| reference via index in path expression | `{{items[0]}}`    | `string[] items;`                               |
-| iterator                               | `{{#each items}}` | `string[] items;`                               |
-| conditional                            | `{{#if active}}`  | `bool active;`                                  |
+| condition                              | example           | type chosen                                                                |
+| :------------------------------------- | :---------------- | :------------------------------------------------------------------------- |
+| simple output                          | `{{title}}`       | `string title;`                                                            |
+| reference to field in path expression  | `{{person.name}}` | `Person person;`<br/> creates new struct: `struct Person { string name; }` |
+| reference via index in path expression | `{{items[0]}}`    | `string[] items;`                                                          |
+| iterator                               | `{{#each items}}` | `string[] items;`                                                          |
+| conditional                            | `{{#if active}}`  | `bool active;`                                                             |
 
 Out of gas cost considerations it might be preferable to use fixed length types when possible.
 This can be achieved by using built-in helper syntax:
