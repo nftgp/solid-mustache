@@ -17,8 +17,6 @@ contract Template {
   }
 
   struct Stone {
-    uint256 seed;
-    string color;
     int256 seasonsAmplitude;
     uint256 secondInYear;
     uint256 secondInDay;
@@ -159,13 +157,11 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<clipPath id="stoneclip"> <circle cx="1000" cy="1060" r="262"></circle> </clipPath> <filter id="texture"> <feTurbulence baseFrequency="0.005 0.01" numOctaves="3" seed="',
-        uintToString(__input.seed),
-        '" ></feTurbulence> <feDiffuseLighting lighting-color="',
-        __input.color,
-        '" surfaceScale="10"> <feDistantLight elevation="60"></feDistantLight> </feDiffuseLighting> <feComposite operator="in" in2="SourceGraphic"></feComposite> </filter> <radialGradient id="ambientshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop> </radialGradient> <radialGradient id="sunshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.75)"></stop> </radialGradient> <circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle> <circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle> <g clip-path="url(#stoneclip)"> <g> <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0 0;0 ',
+        '<clipPath id="stoneclip"> <circle cx="1000" cy="1060" r="262"></circle> </clipPath> <filter id="texture"> <feTurbulence type="turbulence" id="octave" baseFrequency="0.005 0.01" numOctaves="2" ></feTurbulence> <feComponentTransfer> <feFuncR id="r" type="gamma" amplitude="0" exponent="0" offset="0" ></feFuncR> <feFuncG id="g" type="gamma" amplitude="0.75" exponent="0.6" offset="-0.25" ></feFuncG> <feFuncB id="b" type="gamma" amplitude="0.75" exponent="0.2" offset="-0.25" ></feFuncB> <feFuncA type="discrete" tableValues="1"></feFuncA> </feComponentTransfer> <feComposite operator="in" in2="SourceGraphic"></feComposite> </filter> <radialGradient id="ambientshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop> </radialGradient> <radialGradient id="sunshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.7)"></stop> </radialGradient> <circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle> <circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle> <g clip-path="url(#stoneclip)"> <g> <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0 ',
         intToString(__input.seasonsAmplitude),
-        ';0 0" dur="30779326s" begin="-',
+        ";0 0;0 ",
+        intToString(__input.seasonsAmplitude),
+        '" dur="31556926s" begin="-',
         uintToString(__input.secondInYear),
         's" repeatCount="indefinite" ></animateTransform> <circle r="1045" fill="url(#sunshadow)"> <animateMotion dur="86400s" begin="-',
         uintToString(__input.secondInDay),
