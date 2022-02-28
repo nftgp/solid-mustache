@@ -137,7 +137,7 @@ describe("end-to-end test suite", () => {
         console.log(
           `Successfully compiled Template.sol to bytecode (size: ${Math.round(
             size
-          )} KiB, ${Math.round(size / MAX_CONTRACT_SIZE)}% of limit)`
+          )} KiB, ${Math.round((100 * size) / MAX_CONTRACT_SIZE)}% of limit)`
         )
 
         const [signer] = await ethers.getSigners()
