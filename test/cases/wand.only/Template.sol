@@ -35,12 +35,13 @@ contract Template {
   }
 
   struct Halo {
-    Rhythm[24] rhythm;
-  }
-
-  struct Rhythm {
     bool halo0;
     bool halo1;
+    bool halo2;
+    bool halo3;
+    bool halo4;
+    bool halo5;
+    bool[24] rhythm;
   }
 
   function render(__Input memory __input)
@@ -86,7 +87,34 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<defs> <path d="M58.7687 76.7949C110.299 88.0702 154.043 62.7974 190 0.976313L110 139.54C77.1838 120.42 37.9799 109.915 -3.21719e-05 110.066L-1.0516e-05 70.0661C19.718 70.0595 39.5625 72.3317 58.7687 76.7949Z" fill="#9A9EA7" id="h0" ></path> <circle cx="100" cy="-50" r="20" fill="#9A9EA7" id="h1"></circle> </defs> <g transform="translate(1000 1060)"> '
+        '<defs> <g id="halo"> <path d="',
+        __input.halo0
+          ? "M404.28,425.13,290.38.13q61.2,230.4-88,231.6-149.25-1.2-88-231.6L.48,425.13Q47.58,251,202.38,251.73,357.33,251,404.28,425.13Z"
+          : "",
+        __input.halo1
+          ? "M210.75,0Q181.91,217,105.43,215,29,217,.12,0L55.41,420q-21.87-164.34,50-164.66,71.91.33,50,164.66Z"
+          : "",
+        __input.halo2
+          ? "M171.43,0q0,115.31,170.82,162.49L331.9,201.13Q171.43,162.26,171.43,420q0-257.73-160.47-218.87L.61,162.49Q171.43,115.3,171.43,0Z"
+          : "",
+        __input.halo3
+          ? "M145.55,0q0,38-144.94,79.08L11,117.72Q145.55,85.92,145.55,160q0-74.09,134.59-42.28l10.35-38.64Q145.55,38,145.55,0Z"
+          : "",
+        __input.halo4
+          ? "M.61,232l20.71,77.23c73.29-20,154.47-20,227.76,0L331.9.13q-56.19,207.08-214.27,214.4A520.32,520.32,0,0,0,.61,232Z"
+          : "",
+        __input.halo5
+          ? "M404.28,425.13,290.38.13q61.2,230.4-88,231.6-149.25-1.2-88-231.6L.48,425.13Q47.58,251,202.38,251.73,357.33,251,404.28,425.13Z"
+          : "",
+        '" fill="#9A9EA7" /> ',
+        __input.halo4
+          ? ' <circle fill="#9A9EA7" cx="135.41" cy="55.13" r="40"/> '
+          : "",
+        " ",
+        __input.halo5
+          ? ' <circle fill="#9A9EA7" cx="68.43" cy="40.5" r="40"/> '
+          : "",
+        ' </g> </defs> <g transform="translate(1000 1060)"> '
       )
     );
     for (uint256 __i; __i < __input.rhythm.length; __i++) {
@@ -96,9 +124,7 @@ contract Template {
           ' <g style="transform: rotate(calc(',
           uintToString(__i),
           ' * 15deg)) translateY(-600px);" > ',
-          __input.rhythm[__i].halo0 ? '<use href="#h0"></use>' : "",
-          " ",
-          __input.rhythm[__i].halo1 ? '<use href="#h1"></use>' : "",
+          __input.rhythm[__i] ? '<use href="#halo"></use>' : "",
           " </g> "
         )
       );

@@ -103,7 +103,7 @@ const main = async () => {
   const dir = dirname(templatePath)
   const configFile = cosmiconfigSync("solid-mustache").search(dir)
 
-  const defaultPartials = `${dir}/*.partial.hbs`
+  const defaultPartials = `${dir}/{partials/*,*.partial}.{hbs,handlebars}`
 
   const solContent = compile(templateContent, {
     ...configFile,
