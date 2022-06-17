@@ -6,7 +6,7 @@
     type="turbulence"
     id="octave"
     baseFrequency="0.005 0.01"
-    numOctaves="2"
+    numOctaves="{{uint8 numOctaves}}"
   ></feTurbulence>
   <feComponentTransfer>
     <feFuncR
@@ -21,7 +21,7 @@
       type="gamma"
       amplitude="0.75"
       exponent="0.6"
-      offset="-0.25"
+      offset="{{int8 gOff decimals=2}}"
     ></feFuncG>
     <feFuncB
       id="b"

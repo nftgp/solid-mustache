@@ -17,6 +17,8 @@ contract Template {
   }
 
   struct Stone {
+    uint8 numOctaves;
+    int8 gOff;
     int256 seasonsAmplitude;
     uint256 secondInYear;
     uint256 secondInDay;
@@ -122,7 +124,7 @@ contract Template {
         abi.encodePacked(
           __result,
           ' <g style="transform: rotate(calc(',
-          uintToString(__i),
+          uintToString(__i, 0),
           ' * 15deg)) translateY(-600px);" > ',
           __input.rhythm[__i] ? '<use href="#halo"></use>' : "",
           " </g> "
@@ -148,9 +150,9 @@ contract Template {
         abi.encodePacked(
           __result,
           ' <circle cx="',
-          intToString(__input.planets[__i].x),
+          intToString(__input.planets[__i].x, 0),
           '" cy="',
-          intToString(__input.planets[__i].y),
+          intToString(__input.planets[__i].y, 0),
           '" r="11" fill="white"></circle> '
         )
       );
@@ -161,13 +163,13 @@ contract Template {
         abi.encodePacked(
           __result,
           ' <line x1="',
-          intToString(__input.aspects[__i2].x1),
+          intToString(__input.aspects[__i2].x1, 0),
           '" y1="',
-          intToString(__input.aspects[__i2].y1),
+          intToString(__input.aspects[__i2].y1, 0),
           '" x2="',
-          intToString(__input.aspects[__i2].x2),
+          intToString(__input.aspects[__i2].x2, 0),
           '" y2="',
-          intToString(__input.aspects[__i2].y2),
+          intToString(__input.aspects[__i2].y2, 0),
           '" stroke="url(#aspectgradient)" stroke-width="10" stroke-linecap="round" ></line> '
         )
       );
@@ -183,14 +185,18 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<clipPath id="stoneclip"> <circle cx="1000" cy="1060" r="262"></circle> </clipPath> <filter id="texture"> <feTurbulence type="turbulence" id="octave" baseFrequency="0.005 0.01" numOctaves="2" ></feTurbulence> <feComponentTransfer> <feFuncR id="r" type="gamma" amplitude="0" exponent="0" offset="0" ></feFuncR> <feFuncG id="g" type="gamma" amplitude="0.75" exponent="0.6" offset="-0.25" ></feFuncG> <feFuncB id="b" type="gamma" amplitude="0.75" exponent="0.2" offset="-0.25" ></feFuncB> <feFuncA type="discrete" tableValues="1"></feFuncA> </feComponentTransfer> <feComposite operator="in" in2="SourceGraphic"></feComposite> </filter> <radialGradient id="ambientshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop> </radialGradient> <radialGradient id="sunshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.7)"></stop> </radialGradient> <circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle> <circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle> <g clip-path="url(#stoneclip)"> <g> <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0 ',
-        intToString(__input.seasonsAmplitude),
+        '<clipPath id="stoneclip"> <circle cx="1000" cy="1060" r="262"></circle> </clipPath> <filter id="texture"> <feTurbulence type="turbulence" id="octave" baseFrequency="0.005 0.01" numOctaves="',
+        uintToString(__input.numOctaves, 0),
+        '" ></feTurbulence> <feComponentTransfer> <feFuncR id="r" type="gamma" amplitude="0" exponent="0" offset="0" ></feFuncR> <feFuncG id="g" type="gamma" amplitude="0.75" exponent="0.6" offset="',
+        intToString(__input.gOff, 2),
+        '" ></feFuncG> <feFuncB id="b" type="gamma" amplitude="0.75" exponent="0.2" offset="-0.25" ></feFuncB> <feFuncA type="discrete" tableValues="1"></feFuncA> </feComponentTransfer> <feComposite operator="in" in2="SourceGraphic"></feComposite> </filter> <radialGradient id="ambientshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop> </radialGradient> <radialGradient id="sunshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.7)"></stop> </radialGradient> <circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle> <circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle> <g clip-path="url(#stoneclip)"> <g> <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0 ',
+        intToString(__input.seasonsAmplitude, 0),
         ";0 0;0 ",
-        intToString(__input.seasonsAmplitude),
+        intToString(__input.seasonsAmplitude, 0),
         '" dur="31556926s" begin="-',
-        uintToString(__input.secondInYear),
+        uintToString(__input.secondInYear, 0),
         's" repeatCount="indefinite" ></animateTransform> <circle r="1045" fill="url(#sunshadow)"> <animateMotion dur="86400s" begin="-',
-        uintToString(__input.secondInDay),
+        uintToString(__input.secondInDay, 0),
         's" repeatCount="indefinite" path="M 1000 800 A 260 260 0 0 1 1000 1320 A 260 260 0 0 1 1000 800 z" ></animateMotion> </circle> </g> </g>'
       )
     );
@@ -205,7 +211,7 @@ contract Template {
       abi.encodePacked(
         __result,
         '<filter id="stars"> <feTurbulence baseFrequency="0.1" seed="',
-        uintToString(__input.starsSeed),
+        uintToString(__input.starsSeed, 0),
         '"></feTurbulence> <feColorMatrix values="0 0 0 7 -4 0 0 0 7 -4 0 0 0 7 -4 0 0 0 0 1" ></feColorMatrix> </filter> <clipPath id="starsclip"> <circle cx="1000" cy="1060" r="520"></circle> </clipPath> <mask id="starsmask"> <g filter="url(#stars)" transform="scale(2)"> <rect width="100%" height="100%"></rect> </g> </mask> <circle class="bc" cx="1000" cy="1060" r="260"></circle> <circle class="bc" cx="1000" cy="1060" r="360"></circle> <circle class="bc" cx="1000" cy="1060" r="440"></circle> <circle class="bc" cx="1000" cy="1060" r="520"></circle> <line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line> <line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line> <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line> <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line> <g style="filter: blur(2px);"> <rect width="100%" height="100%" fill="white" mask="url(#starsmask)" clip-path="url(#starsclip)" ></rect> </g>'
       )
     );
@@ -226,14 +232,22 @@ contract Template {
     );
   }
 
-  function intToString(int256 i) internal pure returns (string memory) {
+  function intToString(int256 i, uint256 decimals)
+    internal
+    pure
+    returns (string memory)
+  {
     if (i >= 0) {
-      return uintToString(uint256(i));
+      return uintToString(uint256(i), decimals);
     }
-    return string(abi.encodePacked("-", uintToString(uint256(-i))));
+    return string(abi.encodePacked("-", uintToString(uint256(-i), decimals)));
   }
 
-  function uintToString(uint256 i) internal pure returns (string memory) {
+  function uintToString(uint256 i, uint256 decimals)
+    internal
+    pure
+    returns (string memory)
+  {
     if (i == 0) {
       return "0";
     }
@@ -243,13 +257,21 @@ contract Template {
       len++;
       j /= 10;
     }
-    bytes memory bstr = new bytes(len);
-    uint256 k = len;
-    while (i != 0) {
+    uint256 strLen = decimals >= len
+      ? decimals + 2
+      : (decimals > 0 ? len : len + 1);
+
+    bytes memory bstr = new bytes(strLen);
+    uint256 k = strLen;
+    while (k > 0) {
       k -= 1;
       uint8 temp = (48 + uint8(i - (i / 10) * 10));
-      bstr[k] = bytes1(temp);
       i /= 10;
+      bstr[k] = bytes1(temp);
+      if (decimals > 0 && strLen - k == decimals) {
+        k -= 1;
+        bstr[k] = ".";
+      }
     }
     return string(bstr);
   }

@@ -215,11 +215,16 @@ ${contract ? "contract" : "library"} ${name} {
     const intMatch = path.original.match(/^(uint|int)(\d*)$/)
     const bytesMatch = path.original.match(/^bytes(\d*)$/)
     if (intMatch) {
+      const decimalsHashParam = (statement.hash?.pairs || []).find(
+        (p) => p.key === "decimals"
+      )
+      const decimals =
+        (decimalsHashParam?.value as AST.NumberLiteral).value || 0
       const type = intMatch[1] as "uint" | "int"
       const length = intMatch[2] ? parseInt(intMatch[2]) : undefined
       const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
       narrowInput(scope.inputType, fullPath, type, length)
-      return [{ append: [`${type}ToString(${fullPath})`] }]
+      return [{ append: [`${type}ToString(${fullPath}, ${decimals})`] }]
     } else if (bytesMatch) {
       const length = parseInt(bytesMatch[1])
       const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
@@ -718,32 +723,48 @@ const solDefinePartial = (partial: Partial, typeNames: TypeName[]) => {
   `
 }
 
-const SOL_INT_TO_STRING = `function intToString(int256 i) internal pure returns (string memory) {
-  if (i >= 0) {
-    return uintToString(uint256(i));
-  }
-  return string(abi.encodePacked("-", uintToString(uint256(-i))));
+const SOL_INT_TO_STRING = `function intToString(int256 i, uint256 decimals)
+internal
+pure
+returns (string memory)
+{
+if (i >= 0) {
+  return uintToString(uint256(i), decimals);
+}
+return string(abi.encodePacked("-", uintToString(uint256(-i), decimals)));
 }
 
-function uintToString(uint256 i) internal pure returns (string memory) {
-  if (i == 0) {
-    return "0";
-  }
-  uint256 j = i;
-  uint256 len;
-  while (j != 0) {
-    len++;
-    j /= 10;
-  }
-  bytes memory bstr = new bytes(len);
-  uint256 k = len;
-  while (i != 0) {
+function uintToString(uint256 i, uint256 decimals)
+internal
+pure
+returns (string memory)
+{
+if (i == 0) {
+  return "0";
+}
+uint256 j = i;
+uint256 len;
+while (j != 0) {
+  len++;
+  j /= 10;
+}
+uint256 strLen = decimals >= len
+  ? decimals + 2
+  : (decimals > 0 ? len : len + 1);
+
+bytes memory bstr = new bytes(strLen);
+uint256 k = strLen;
+while (k > 0) {
+  k -= 1;
+  uint8 temp = (48 + uint8(i - (i / 10) * 10));
+  i /= 10;
+  bstr[k] = bytes1(temp);
+  if (decimals > 0 && strLen - k == decimals) {
     k -= 1;
-    uint8 temp = (48 + uint8(i - (i / 10) * 10));
-    bstr[k] = bytes1(temp);
-    i /= 10;
+    bstr[k] = ".";
   }
-  return string(bstr);
+}
+return string(bstr);
 }`
 
 const compatible = (a: InputType, b: InputType): boolean => {

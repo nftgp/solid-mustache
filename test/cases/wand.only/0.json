@@ -21,8 +21,8 @@
   ],
   "starsSeed": "5",
   "stone": {
-    "seed": "1",
-    "color": "crimson",
+    "numOctaves": 1,
+    "gOff": -75,
     "seasonsAmplitude": 260,
     "northernHemisphere": true,
     "secondInYear": 15389663,
