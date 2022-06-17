@@ -219,7 +219,7 @@ ${contract ? "contract" : "library"} ${name} {
         (p) => p.key === "decimals"
       )
       const decimals =
-        (decimalsHashParam?.value as AST.NumberLiteral).value || 0
+        (decimalsHashParam?.value as AST.NumberLiteral | undefined)?.value || 0
       const type = intMatch[1] as "uint" | "int"
       const length = intMatch[2] ? parseInt(intMatch[2]) : undefined
       const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
