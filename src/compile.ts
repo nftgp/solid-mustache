@@ -1,7 +1,8 @@
-import { AST, parse } from "@handlebars/parser"
+import { AST, parse as baseParse } from "@handlebars/parser"
 import { format } from "prettier"
 import prettierPluginSolidity from "prettier-plugin-solidity"
-import { boolean } from "yargs"
+
+import { createOptimizingParse } from "./optimizingParse"
 
 type UnknownInput = { type: undefined }
 type StringInput = { type: "string"; length?: number }
@@ -48,6 +49,11 @@ const INPUT_STRUCT_NAME = "__Input"
 const INPUT_VAR_NAME = "__input"
 const RESULT_VAR_NAME = "__result"
 
+type ParseFunction = (
+  input: string,
+  partials: Record<string, string>
+) => { program: AST.Program; partials: Map<string, AST.Program> }
+
 interface Options {
   /** Assign a custom name to the library/contract (default: "Template") */
   name?: string
@@ -60,7 +66,7 @@ interface Options {
   /** Allows providing additional templates that can be used via partial call expressions */
   partials?: Record<string, string>
   /** Set to true to condense sequences of whitespace into single space, saving some contract size */
-  condenseWhitespace?: boolean
+  parse?: ParseFunction
 
   /* Formatting options for prettier */
   printWidth?: number
@@ -77,21 +83,18 @@ export const compile = (template: string, options: Options = {}): string => {
     header = "// SPDX-License-Identifier: UNLICENSED",
     solidityPragma = "^0.8.6",
     contract,
-    partials,
-    condenseWhitespace: shallCondenseWhitespace,
+    partials = {},
+    parse = createOptimizingParse(),
 
     ...formatOptions
   } = options
 
-  const preprocessedTemplate = shallCondenseWhitespace
-    ? condenseWhitespace(template)
-    : template
-  const ast = parse(preprocessedTemplate)
+  const { program, partials: partialPrograms } = parse(template, partials)
 
   const scope = new Scope()
   const usedPartials: Partial[] = []
 
-  const lines = processProgram(ast, scope)
+  const lines = processProgram(program, scope)
 
   if (scope.inputType.type !== "struct") {
     throw new Error("Unexpected input type")
@@ -361,10 +364,12 @@ ${contract ? "contract" : "library"} ${name} {
 
     let partial = usedPartials.find((p) => p.name === partialName)
     if (!partial) {
-      const preprocessedPartialTemplate = shallCondenseWhitespace
-        ? condenseWhitespace(partialTemplate)
-        : partialTemplate
-      const ast = parse(preprocessedPartialTemplate)
+      const ast = partialPrograms.get(partialName)
+      if (!ast) {
+        throw new Error(
+          `parse function did not return an AST for partial ${partialName}`
+        )
+      }
       const inputType = resolveType(scope.inputType, contextPath)
 
       partial = {
