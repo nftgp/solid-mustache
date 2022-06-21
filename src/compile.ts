@@ -755,7 +755,7 @@ while (j != 0) {
 }
 uint256 strLen = decimals >= len
   ? decimals + 2
-  : (decimals > 0 ? len : len + 1);
+  : (decimals > 0 ? len + 1 : len);
 
 bytes memory bstr = new bytes(strLen);
 uint256 k = strLen;

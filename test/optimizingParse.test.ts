@@ -54,11 +54,7 @@ describe("findRepeatingSubstrings", () => {
   })
 
   it("should return a mapping of result chunk to original chunk indices", () => {
-    const { substrings, chunks, indexMap } = findRepeatingSubstrings(
-      ["banana", "anna"],
-      2
-    )
-    console.log({ substrings, chunks, indexMap })
+    const { chunks, indexMap } = findRepeatingSubstrings(["banana", "anna"], 2)
     expect(chunks).to.have.length(6) // [ 'b', Symbol(an), Symbol(an), 'a', Symbol(an), 'na' ]
     expect(indexMap).to.deep.equal([0, 0, 0, 0, 1, 1])
   })
