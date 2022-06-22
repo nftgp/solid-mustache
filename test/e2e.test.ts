@@ -10,6 +10,7 @@ import "@nomiclabs/hardhat-ethers"
 
 import prettierConfig from "../.prettierrc.json"
 import { compile } from "../src/compile"
+import { createOptimizingParse } from "../src/optimizingParse"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const solc = require("solc")
@@ -108,9 +109,9 @@ describe("end-to-end test suite", () => {
 
       before(async () => {
         const contractSource = compile(template, {
-          ...configFile?.config,
           contract: true,
           partials,
+          parse: createOptimizingParse(configFile?.config),
           ...prettierConfig,
         })
 
@@ -118,6 +119,11 @@ describe("end-to-end test suite", () => {
           path.join(__dirname, "cases", name, "Template.sol"),
           contractSource
         )
+
+        // contractSource = readFileSync(
+        //   path.join(__dirname, "cases", name, "Template.sol"),
+        //   { encoding: "utf-8" }
+        // )
 
         const solcOutput = solCompile(contractSource)
 

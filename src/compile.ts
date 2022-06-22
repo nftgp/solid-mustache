@@ -1,4 +1,4 @@
-import { AST, parse as baseParse } from "@handlebars/parser"
+import { AST } from "@handlebars/parser"
 import { format } from "prettier"
 import prettierPluginSolidity from "prettier-plugin-solidity"
 
@@ -52,7 +52,11 @@ const RESULT_VAR_NAME = "__result"
 type ParseFunction = (
   input: string,
   partials: Record<string, string>
-) => { program: AST.Program; partials: Map<string, AST.Program> }
+) => {
+  program: AST.Program
+  partials: Map<string, AST.Program>
+  constants?: Map<string, string>
+}
 
 interface Options {
   /** Assign a custom name to the library/contract (default: "Template") */
@@ -89,7 +93,11 @@ export const compile = (template: string, options: Options = {}): string => {
     ...formatOptions
   } = options
 
-  const { program, partials: partialPrograms } = parse(template, partials)
+  const {
+    program,
+    partials: partialPrograms,
+    constants = new Map<string, string>(),
+  } = parse(template, partials)
 
   const scope = new Scope()
   const usedPartials: Partial[] = []
@@ -114,6 +122,10 @@ export const compile = (template: string, options: Options = {}): string => {
 
   const solidityCode = `${header}
 pragma solidity ${solidityPragma};
+
+${[...constants.entries()]
+  .map(([name, value]) => `string constant ${name} = "${solEscape(value)}";`)
+  .join("\n")}
 
 ${contract ? "contract" : "library"} ${name} {
 
@@ -441,6 +453,12 @@ class Scope {
     const BUILT_IN_ALIASES = ["@index"]
     if (BUILT_IN_ALIASES.includes(original)) {
       return this.aliases[original]
+    }
+
+    if (original.startsWith("__constant")) {
+      // for optimization purposes (dedupe repeated substrings), we turn some content statements into path expressions referencing constant strings
+      // those constants start with __constant, so they are easy to detect
+      return original
     }
 
     if (typeof parts[0] !== "string")

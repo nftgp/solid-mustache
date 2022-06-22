@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-3.0-only
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.6;
 
 contract Template {
@@ -33,28 +33,20 @@ contract Template {
           __input.words[__i],
           "</text>\n\n",
           text(__input.words[__i]),
-          "",
-          text(__input.color),
-          ""
+          text(__input.color)
         )
       );
     }
-    __result = string(abi.encodePacked(__result, ""));
-    if (__input.showCircle) {
-      __result = string(
-        abi.encodePacked(__result, '    <circle cx="100" cy="100" r="10" />\n')
-      );
-    }
-    __result = string(abi.encodePacked(__result, ""));
-    if (!__input.showCircle) {
-      __result = string(
-        abi.encodePacked(
-          __result,
-          '    <rect x1="100" y1="100" x2="110" y2="110" />\n'
-        )
-      );
-    }
-    __result = string(abi.encodePacked(__result, "\n</svg>"));
+    __result = string(
+      abi.encodePacked(
+        __result,
+        __input.showCircle ? '    <circle cx="100" cy="100" r="10" />\n' : "",
+        !__input.showCircle
+          ? '    <rect x1="100" y1="100" x2="110" y2="110" />\n'
+          : "",
+        "\n</svg>"
+      )
+    );
   }
 
   function text(string memory __input)
@@ -88,24 +80,46 @@ contract Template {
     );
   }
 
-  function uint2str(uint256 _i) internal pure returns (string memory) {
-    if (_i == 0) {
+  function intToString(int256 i, uint256 decimals)
+    internal
+    pure
+    returns (string memory)
+  {
+    if (i >= 0) {
+      return uintToString(uint256(i), decimals);
+    }
+    return string(abi.encodePacked("-", uintToString(uint256(-i), decimals)));
+  }
+
+  function uintToString(uint256 i, uint256 decimals)
+    internal
+    pure
+    returns (string memory)
+  {
+    if (i == 0) {
       return "0";
     }
-    uint256 j = _i;
+    uint256 j = i;
     uint256 len;
     while (j != 0) {
       len++;
       j /= 10;
     }
-    bytes memory bstr = new bytes(len);
-    uint256 k = len;
-    while (_i != 0) {
-      k = k - 1;
-      uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
-      bytes1 b1 = bytes1(temp);
-      bstr[k] = b1;
-      _i /= 10;
+    uint256 strLen = decimals >= len
+      ? decimals + 2
+      : (decimals > 0 ? len + 1 : len);
+
+    bytes memory bstr = new bytes(strLen);
+    uint256 k = strLen;
+    while (k > 0) {
+      k -= 1;
+      uint8 temp = (48 + uint8(i - (i / 10) * 10));
+      i /= 10;
+      bstr[k] = bytes1(temp);
+      if (decimals > 0 && strLen - k == decimals) {
+        k -= 1;
+        bstr[k] = ".";
+      }
     }
     return string(bstr);
   }

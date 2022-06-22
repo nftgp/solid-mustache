@@ -7,7 +7,7 @@ interface Options {
 
 export const createOptimizingParse = ({
   condenseWhitespace: shallCondenseWhitespace,
-  minRepeatingSubstringLength = 64,
+  minRepeatingSubstringLength = 16,
 }: Options = {}) => {
   const parse = shallCondenseWhitespace ? condenseAndParse : baseParse
 
@@ -36,21 +36,50 @@ export const createOptimizingParse = ({
     )
 
     // 3) map content expressions in AST to split them accordingly
-    return flatMapContentStatements(
+    let constantIndex = 0
+    const constantNames = new Map<symbol, string>()
+    const constants = new Map<string, string>()
+    const result = flatMapContentStatements(
       cleaned.program,
       (contentStatement, index) => {
-        const result: AST.ContentStatement[] = []
+        const result: (AST.ContentStatement | AST.MustacheStatement)[] = []
         let chunkIndex = indexMap.indexOf(index)
 
         while (indexMap[chunkIndex] === index) {
           const chunk = chunks[chunkIndex]
-          const value =
-            typeof chunk === "symbol" ? substrings.get(chunk) : chunk
-          if (value === undefined) throw new Error("invariant violation")
-          if (value !== "") {
+          if (typeof chunk === "symbol") {
+            const value = substrings.get(chunk)
+            if (value === undefined) throw new Error("invariant violation")
+
+            let constantName = constantNames.get(chunk)
+            if (!constantName) {
+              constantName = `__constant${constantIndex++}`
+              constantNames.set(chunk, constantName)
+              constants.set(constantName, value)
+            }
+
+            result.push({
+              type: "MustacheStatement",
+              path: {
+                type: "PathExpression",
+                data: false,
+                depth: 0,
+                parts: [constantName],
+                head: constantName,
+                tail: [],
+                original: constantName,
+                loc: contentStatement.loc,
+              },
+              params: [],
+              escaped: false,
+              loc: contentStatement.loc,
+              strip: { open: false, close: false },
+              hash: { type: "Hash", pairs: [], loc: contentStatement.loc },
+            })
+          } else {
             result.push({
               ...contentStatement,
-              value,
+              value: chunk,
             })
           }
           chunkIndex++
@@ -59,6 +88,8 @@ export const createOptimizingParse = ({
       },
       { partialASTs: cleaned.partials }
     )
+
+    return { ...result, constants }
   }
 
   return optimizingParse
@@ -156,7 +187,7 @@ function flatMapContentStatements(
   contentStatementCallback: (
     contentStatement: AST.ContentStatement,
     index: number
-  ) => AST.ContentStatement[],
+  ) => AST.Expression[],
   options:
     | {
         parse: (input: string) => AST.Program
