@@ -7,6 +7,7 @@ import yargs from "yargs"
 import { hideBin } from "yargs/helpers"
 
 import { compile } from "./compile"
+import { createOptimizingParse } from "./optimizingParse"
 
 const { argv } = yargs(hideBin(process.argv)).command(
   "* <template-file> [options]",
@@ -111,7 +112,7 @@ const main = async () => {
     solidityPragma,
     header,
     partials: loadPartials(partials || defaultPartials),
-    condenseWhitespace: condense,
+    parse: createOptimizingParse({ condenseWhitespace: condense }),
 
     bracketSpacing: !noBracketSpacing,
     explicitTypes: !noExplicitTypes,

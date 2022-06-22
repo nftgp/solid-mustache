@@ -1,25 +1,33 @@
-import { AST, parse } from "@handlebars/parser"
+import { AST, parse as baseParse } from "@handlebars/parser"
 
 interface Options {
   condenseWhitespace?: boolean
   minRepeatingSubstringLength?: number
 }
+
 export const createOptimizingParse = ({
   condenseWhitespace: shallCondenseWhitespace,
-  minRepeatingSubstringLength = 16,
+  minRepeatingSubstringLength = 64,
 }: Options = {}) => {
-  const optimizingParse = (input: string, partials: Record<string, string>) => {
-    const preprocessedTemplate = shallCondenseWhitespace
-      ? condenseWhitespace(input)
-      : input
-    const program = parse(preprocessedTemplate)
+  const parse = shallCondenseWhitespace ? condenseAndParse : baseParse
 
-    // 1) collect all content strings
+  const optimizingParse = (input: string, partials: Record<string, string>) => {
+    const program = parse(input)
+
+    // 1) collect all content strings & filter out empty content statements
     const contentStrings: string[] = []
-    processAST(program, partials, (contentStatement) => {
-      contentStrings.push(contentStatement.value)
-      return [contentStatement]
-    })
+    const cleaned = flatMapContentStatements(
+      program,
+      (contentStatement) => {
+        if (contentStatement.value) {
+          contentStrings.push(contentStatement.value)
+          return [contentStatement]
+        } else {
+          return []
+        }
+      },
+      { parse, partialSources: partials }
+    )
 
     // 2) isolate repeating substrings in content strings
     const { chunks, indexMap, substrings } = findRepeatingSubstrings(
@@ -28,27 +36,33 @@ export const createOptimizingParse = ({
     )
 
     // 3) map content expressions in AST to split them accordingly
-    return processAST(program, partials, (contentStatement, index) => {
-      const result: AST.ContentStatement[] = []
-      let chunkIndex = indexMap.indexOf(index)
-      while (indexMap[chunkIndex] === index) {
-        const chunk = chunks[chunkIndex]
-        const value = typeof chunk === "symbol" ? substrings.get(chunk) : chunk
-        if (!value) throw new Error("invariant violation")
-        result.push({
-          ...contentStatement,
-          value,
-        })
-        chunkIndex++
-      }
-      return result
-    })
+    return flatMapContentStatements(
+      cleaned.program,
+      (contentStatement, index) => {
+        const result: AST.ContentStatement[] = []
+        let chunkIndex = indexMap.indexOf(index)
+
+        while (indexMap[chunkIndex] === index) {
+          const chunk = chunks[chunkIndex]
+          const value =
+            typeof chunk === "symbol" ? substrings.get(chunk) : chunk
+          if (value === undefined) throw new Error("invariant violation")
+          if (value !== "") {
+            result.push({
+              ...contentStatement,
+              value,
+            })
+          }
+          chunkIndex++
+        }
+        return result
+      },
+      { partialASTs: cleaned.partials }
+    )
   }
 
   return optimizingParse
 }
-
-const condenseWhitespace = (str: string) => str.replace(/\s+/g, " ")
 
 export const indexOf = (
   chunks: (string | symbol)[],
@@ -68,16 +82,17 @@ export const indexOf = (
   return undefined
 }
 
-const arrayJoin = (arr: any[], insert: any) =>
+const arrayJoin = <E, I>(arr: E[], insert: I) =>
   arr.flatMap((element, i) => [
     element,
     ...(i < arr.length - 1 ? [insert] : []),
   ])
 
 export const findRepeatingSubstrings = (
-  chunks: (string | symbol)[],
+  strings: string[],
   minimalLength: number
 ) => {
+  let chunks: (string | symbol)[] = strings
   const substrings = new Map<symbol, string>()
   let indexMap = Array.from(Array(chunks.length).keys()) // keeps track of index of the original chunk from which the resulting chunk was split out
 
@@ -105,17 +120,26 @@ export const findRepeatingSubstrings = (
         const symbol = Symbol(substring)
         substrings.set(symbol, substring)
         const newIndexMap = new Array(indexMap.length)
+
         chunks = chunks.flatMap((chunk, chunkIndex) => {
-          if (typeof chunk === "symbol") return chunk
-          // split on substring, then insert symbols in between and remove empty strings possibly inserted when splitting on prefix or suffix
-          const subchunks = arrayJoin(chunk.split(substring), symbol).filter(
-            (chunk) => typeof chunk === "symbol" || chunk !== ""
-          )
+          if (typeof chunk === "symbol") {
+            newIndexMap[chunkIndex] = indexMap[chunkIndex]
+            return chunk
+          }
+          // split on substring, then insert symbols in between
+          const subchunks = arrayJoin(
+            chunk.split(substring),
+            symbol as symbol
+          ).filter((chunk) => chunk !== "")
+          if (indexMap[chunkIndex] === undefined) {
+            throw new Error("invariant violation")
+          }
           newIndexMap[chunkIndex] = new Array(subchunks.length).fill(
             indexMap[chunkIndex]
           )
           return subchunks
         })
+
         indexMap = newIndexMap.flat()
         i++ // increment one extra to jump over the inserted symbol
         // break inner loop to start over with the new chunks
@@ -127,16 +151,30 @@ export const findRepeatingSubstrings = (
   return { substrings, chunks, indexMap }
 }
 
-function processAST(
+function flatMapContentStatements(
   program: AST.Program,
-  partials: Record<string, string>,
   contentStatementCallback: (
     contentStatement: AST.ContentStatement,
     index: number
-  ) => AST.ContentStatement[]
+  ) => AST.ContentStatement[],
+  options:
+    | {
+        parse: (input: string) => AST.Program
+        partialSources: Record<string, string>
+      }
+    | {
+        partialASTs: Map<string, AST.Program>
+      }
 ) {
   let index = 0
-  const partialASTs = new Map<string, AST.Program>()
+  const partialSources =
+    "partialSources" in options ? options.partialSources : {}
+  const partialASTs =
+    "partialASTs" in options
+      ? options.partialASTs
+      : new Map<string, AST.Program>()
+  const processedPartials = new Set<string>()
+
   const processedAST = processProgram(program)
   return { program: processedAST, partials: partialASTs }
 
@@ -156,7 +194,7 @@ function processAST(
         )
 
       case "BlockStatement":
-        return processProgram((statement as AST.BlockStatement).program)
+        return processBlock(statement as AST.BlockStatement)
 
       case "PartialStatement":
         return processPartialStatement(statement as AST.PartialStatement)
@@ -165,20 +203,37 @@ function processAST(
     return statement
   }
 
+  function processBlock(statement: AST.BlockStatement) {
+    return {
+      ...statement,
+      program: processProgram(statement.program),
+    }
+  }
+
   function processPartialStatement(statement: AST.PartialStatement) {
     if (statement.name.type !== "PathExpression") throw new Error("Unsupported")
     const partialName = statement.name.original
 
-    if (!partialASTs.has(partialName)) {
-      const partialTemplate = partials && partials[partialName]
-      if (!partialTemplate) {
-        throw new Error(`Trying to use an unknown partial: ${partialName}`)
+    if (!processedPartials.has(partialName)) {
+      processedPartials.add(partialName)
+
+      let partialAST = partialASTs.get(partialName)
+      if (!partialAST) {
+        const partialTemplate = partialSources && partialSources[partialName]
+        if (!partialTemplate) {
+          throw new Error(`Trying to use an unknown partial: ${partialName}`)
+        }
+        const parse = "parse" in options && options.parse
+        if (!parse) throw new Error("invariant violation")
+        partialAST = parse(partialTemplate)
       }
 
-      const partialAST = parse(partialTemplate)
       partialASTs.set(partialName, processProgram(partialAST))
     }
 
     return statement
   }
 }
+
+const condenseAndParse = (input: string) =>
+  baseParse(input.replace(/\s+/g, " "))

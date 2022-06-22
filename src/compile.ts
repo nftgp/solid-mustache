@@ -806,5 +806,3 @@ const incrementName = (str: string) => {
   if (isNaN(i)) i = 1
   return `${base}${i + 1}`
 }
-
-const condenseWhitespace = (str: string) => str.replace(/\s+/g, " ")
