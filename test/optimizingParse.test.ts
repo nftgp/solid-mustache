@@ -58,6 +58,20 @@ describe("findRepeatingSubstrings", () => {
     expect(chunks).to.have.length(6) // [ 'b', Symbol(an), Symbol(an), 'a', Symbol(an), 'na' ]
     expect(indexMap).to.deep.equal([0, 0, 0, 0, 1, 1])
   })
+
+  it("should not span over multiple instances", () => {
+    const { chunks } = findRepeatingSubstrings(
+      ["bananabanana", "anotherbananabanana"],
+      2
+    )
+    expect(chunks.map((c) => c.toString())).to.deep.equal([
+      "Symbol(banana)",
+      "Symbol(banana)",
+      "another",
+      "Symbol(banana)",
+      "Symbol(banana)",
+    ])
+  })
 })
 
 describe("indexOf", () => {

@@ -2,12 +2,12 @@ import { AST, parse as baseParse } from "@handlebars/parser"
 
 interface Options {
   condenseWhitespace?: boolean
-  minRepeatingSubstringLength?: number
+  dedupeThreshold?: number
 }
 
 export const createOptimizingParse = ({
   condenseWhitespace: shallCondenseWhitespace,
-  minRepeatingSubstringLength = 16,
+  dedupeThreshold = Infinity,
 }: Options = {}) => {
   const parse = shallCondenseWhitespace ? condenseAndParse : baseParse
 
@@ -32,7 +32,7 @@ export const createOptimizingParse = ({
     // 2) isolate repeating substrings in content strings
     const { chunks, indexMap, substrings } = findRepeatingSubstrings(
       contentStrings,
-      minRepeatingSubstringLength
+      dedupeThreshold
     )
 
     // 3) map content expressions in AST to split them accordingly
@@ -135,12 +135,26 @@ export const findRepeatingSubstrings = (
     for (let j = 0; j <= chunk.length - minimalLength; j++) {
       let length = minimalLength
       let substring = chunk.substring(j, j + length)
-      while (
+
+      extendLoop: while (
         j + length <= chunk.length &&
         indexOf(chunks, substring, i, j + length)
       ) {
         length++
         substring = chunk.substring(j, j + length)
+
+        // check for internal repetition
+        if (
+          substring.length > minimalLength * 2 &&
+          substring.length % 2 === 0
+        ) {
+          const firstHalf = substring.substring(0, substring.length / 2)
+          const secondHalf = substring.substring(substring.length / 2)
+          if (firstHalf === secondHalf) {
+            length = firstHalf.length + 1
+            break extendLoop
+          }
+        }
       }
 
       // length is now the matching length + 1

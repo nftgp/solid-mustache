@@ -1,20 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.6;
 
-string constant __constant0 = '<style type="text/css"> .';
-string constant __constant1 = "{fill:none;stroke:#";
-string constant __constant2 = '"> <feTurbulence ';
-string constant __constant3 = 'baseFrequency="0.';
-string constant __constant4 = "></feTurbulence> <feCo";
-string constant __constant5 = "0 0 0 7 -4 0 0 0 ";
-string constant __constant6 = '<clipPath id="st';
-string constant __constant7 = 'clip"> <circle cx="1000" cy="1060" r="';
-string constant __constant8 = '520"></circle> <';
-string constant __constant9 = 'line class="bc" x1="';
-string constant __constant10 = '0" x2="550" y2="';
-string constant __constant11 = '> <g style="filter: blur(';
-string constant __constant12 = ' clip-path="url(#st';
-
 contract Template {
   struct __Input {
     Background background;
@@ -68,11 +54,7 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 2000 3000" style="background: #112211;" > ',
-        __constant0,
-        "bc",
-        __constant1,
-        "8BA0A5;} </style>",
+        '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 2000 3000" style="background: #112211;" > <style type="text/css"> .bc{fill:none;stroke:#8BA0A5;} </style>',
         background(__input.background),
         stars(__input),
         stone(__input.stone),
@@ -92,10 +74,7 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        __constant0,
-        "st0",
-        __constant1,
-        'DCD7AF;stroke-width:4;stroke-miterlimit:10;} .st1{fill:#DCD7AF;} </style> <symbol id="Frame_border" viewBox="-433.4 -1413.6 866.8 2827.1"> <path class="st0" d="M419.3,1389.5l12.1,17.6v-17.6v-32.8h-850.7v-2713.5h372.9v-32.8v-17.6l-12.1,17.6h-372.9v32.8v2713.5v32.8 H419.3z" ></path> </symbol> <symbol id="Star" viewBox="-59.9 -59.9 119.8 119.8"> <path class="st1" d="M59.9,59.9C-0.6,5.8,2.8,3-59.8,59.9c56.3-58,55.5-62-0.1-119.7C2.8-2.9-0.7-5.6,59.8-59.9 C5.4-1.5,3.6,0.7,59.9,59.9z" ></path> </symbol> <g id="frame"> <g> <path class="st1" d="M1960,40v2920H40V40H1960 M2000,0H0v3000h2000V0L2000,0z" ></path> </g> <use href="#Frame_border" width="866.8" height="2827.1" x="-433.4" y="-1413.6" transform="matrix(1 0 0 -1 508.8714 1500.0009)" ></use> <use href="#Frame_border" width="866.8" height="2827.1" x="-433.4" y="-1413.6" transform="matrix(-1 0 0 -1 1491.2577 1499.7725)" ></use> <circle class="st1" cx="1000" cy="118.4" r="24.2"></circle> <use href="#Star" width="119.8" height="119.8" x="-59.9" y="-59.9" transform="matrix(1 0 0 -1 215.571 256.0737)" ></use> <use href="#Star" width="119.8" height="119.8" x="-59.9" y="-59.9" transform="matrix(1 0 0 -1 1785.0356 256.0737)" ></use> <use href="#Star" width="119.8" height="119.8" x="-59.9" y="-59.9" transform="matrix(1 0 0 -1 215.571 2744.0227)" ></use> <use href="#Star" width="119.8" height="119.8" x="-59.9" y="-59.9" transform="matrix(1 0 0 -1 1785.0356 2744.0227)" ></use> <path class="st1" d="M541.3,2828.4h917.5c27.2,0,49.3,22.1,49.3,49.3v2c0,27.2-22.1,49.3-49.3,49.3H541.3 c-27.2,0-49.3-22.1-49.3-49.3v-2C491.9,2850.5,514,2828.4,541.3,2828.4z" ></path> <text text-anchor="middle" x="1000" y="2895" style="font: 45px serif;" >',
+        '<style type="text/css"> .st0{fill:none;stroke:#DCD7AF;stroke-width:4;stroke-miterlimit:10;} .st1{fill:#DCD7AF;} </style> <symbol id="Frame_border" viewBox="-433.4 -1413.6 866.8 2827.1"> <path class="st0" d="M419.3,1389.5l12.1,17.6v-17.6v-32.8h-850.7v-2713.5h372.9v-32.8v-17.6l-12.1,17.6h-372.9v32.8v2713.5v32.8 H419.3z" ></path> </symbol> <symbol id="Star" viewBox="-59.9 -59.9 119.8 119.8"> <path class="st1" d="M59.9,59.9C-0.6,5.8,2.8,3-59.8,59.9c56.3-58,55.5-62-0.1-119.7C2.8-2.9-0.7-5.6,59.8-59.9 C5.4-1.5,3.6,0.7,59.9,59.9z" ></path> </symbol> <g id="frame"> <g> <path class="st1" d="M1960,40v2920H40V40H1960 M2000,0H0v3000h2000V0L2000,0z" ></path> </g> <use href="#Frame_border" width="866.8" height="2827.1" x="-433.4" y="-1413.6" transform="matrix(1 0 0 -1 508.8714 1500.0009)" ></use> <use href="#Frame_border" width="866.8" height="2827.1" x="-433.4" y="-1413.6" transform="matrix(-1 0 0 -1 1491.2577 1499.7725)" ></use> <circle class="st1" cx="1000" cy="118.4" r="24.2"></circle> <use href="#Star" width="119.8" height="119.8" x="-59.9" y="-59.9" transform="matrix(1 0 0 -1 215.571 256.0737)" ></use> <use href="#Star" width="119.8" height="119.8" x="-59.9" y="-59.9" transform="matrix(1 0 0 -1 1785.0356 256.0737)" ></use> <use href="#Star" width="119.8" height="119.8" x="-59.9" y="-59.9" transform="matrix(1 0 0 -1 215.571 2744.0227)" ></use> <use href="#Star" width="119.8" height="119.8" x="-59.9" y="-59.9" transform="matrix(1 0 0 -1 1785.0356 2744.0227)" ></use> <path class="st1" d="M541.3,2828.4h917.5c27.2,0,49.3,22.1,49.3,49.3v2c0,27.2-22.1,49.3-49.3,49.3H541.3 c-27.2,0-49.3-22.1-49.3-49.3v-2C491.9,2850.5,514,2828.4,541.3,2828.4z" ></path> <text text-anchor="middle" x="1000" y="2895" style="font: 45px serif;" >',
         __input.title,
         "</text> </g>"
       )
@@ -163,9 +142,7 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<g transform="translate(1000 1060)"> <defs> <linearGradient id="aspectgradient"> <stop offset="0%" stop-color="#FFFFF0"></stop> <stop offset="100%" stop-color="#BFBDB1"></stop> </linearGradient> </defs',
-        __constant11,
-        '5px);"> '
+        '<g transform="translate(1000 1060)"> <defs> <linearGradient id="aspectgradient"> <stop offset="0%" stop-color="#FFFFF0"></stop> <stop offset="100%" stop-color="#BFBDB1"></stop> </linearGradient> </defs> <g style="filter: blur(5px);"> '
       )
     );
     for (uint256 __i; __i < __input.planets.length; __i++) {
@@ -208,27 +185,11 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        __constant6,
-        "one",
-        __constant7,
-        '262"></circle> </clipPath> <filter id="texture',
-        __constant2,
-        'type="turbulence" id="octave" ',
-        __constant3,
-        '005 0.01" numOctaves="',
+        '<clipPath id="stoneclip"> <circle cx="1000" cy="1060" r="262"></circle> </clipPath> <filter id="texture"> <feTurbulence type="turbulence" id="octave" baseFrequency="0.005 0.01" numOctaves="',
         uintToString(__input.numOctaves, 0),
-        '" ',
-        __constant4,
-        'mponentTransfer> <feFuncR id="r" type="gamma" amplitude="0" exponent="0" offset="0" ></feFuncR> <feFuncG id="g" type="gamma" amplitude="0.75" exponent="0.6" offset="',
+        '" ></feTurbulence> <feComponentTransfer> <feFuncR id="r" type="gamma" amplitude="0" exponent="0" offset="0" ></feFuncR> <feFuncG id="g" type="gamma" amplitude="0.75" exponent="0.6" offset="',
         intToString(__input.gOff, 2),
-        '" ></feFuncG> <feFuncB id="b" type="gamma" amplitude="0.75" exponent="0.2" offset="-0.25" ></feFuncB> <feFuncA type="discrete" tableValues="1"></feFuncA> </feComponentTransfer> <feComposite operator="in" in2="SourceGraphic"></feComposite> </filter> <radialGradient id="ambientshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop> </radialGradient> <radialGradient id="sunshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.7)"></stop> </radialGradient> <circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle> <circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle> <g',
-        __constant12,
-        'oneclip)"> <g> <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0 '
-      )
-    );
-    __result = string(
-      abi.encodePacked(
-        __result,
+        '" ></feFuncG> <feFuncB id="b" type="gamma" amplitude="0.75" exponent="0.2" offset="-0.25" ></feFuncB> <feFuncA type="discrete" tableValues="1"></feFuncA> </feComponentTransfer> <feComposite operator="in" in2="SourceGraphic"></feComposite> </filter> <radialGradient id="ambientshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="100%" stop-color="hsla(0, 0%, 0%, 0.5)"></stop> </radialGradient> <radialGradient id="sunshadow"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"></stop> <stop offset="33%" stop-color="hsla(0, 0%, 0%, 0.7)"></stop> </radialGradient> <circle cx="1000" cy="1060" r="260" filter="url(#texture)"></circle> <circle cx="1000" cy="1060" r="262" fill="url(#ambientshadow)"></circle> <g clip-path="url(#stoneclip)"> <g> <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0 ',
         intToString(__input.seasonsAmplitude, 0),
         ";0 0;0 ",
         intToString(__input.seasonsAmplitude, 0),
@@ -249,47 +210,10 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        '<filter id="stars',
-        __constant2,
-        __constant3,
-        '1" seed="',
+        '<filter id="stars"> <feTurbulence baseFrequency="0.1" seed="',
         uintToString(__input.starsSeed, 0),
-        '"',
-        __constant4,
-        'lorMatrix values="',
-        __constant5,
-        "7 -4 ",
-        __constant5,
-        '0 1" ></feColorMatrix> </filter> ',
-        __constant6,
-        "ars",
-        __constant7,
-        __constant8
+        '"></feTurbulence> <feColorMatrix values="0 0 0 7 -4 0 0 0 7 -4 0 0 0 7 -4 0 0 0 0 1" ></feColorMatrix> </filter> <clipPath id="starsclip"> <circle cx="1000" cy="1060" r="520"></circle> </clipPath> <mask id="starsmask"> <g filter="url(#stars)" transform="scale(2)"> <rect width="100%" height="100%"></rect> </g> </mask> <circle class="bc" cx="1000" cy="1060" r="260"></circle> <circle class="bc" cx="1000" cy="1060" r="360"></circle> <circle class="bc" cx="1000" cy="1060" r="440"></circle> <circle class="bc" cx="1000" cy="1060" r="520"></circle> <line class="bc" x1="740" y1="610" x2="1260" y2="1510"></line> <line class="bc" x1="1260" y1="610" x2="740" y2="1510"></line> <line class="bc" x1="1450" y1="800" x2="550" y2="1320"></line> <line class="bc" x1="1450" y1="1320" x2="550" y2="800"></line> <g style="filter: blur(2px);"> <rect width="100%" height="100%" fill="white" mask="url(#starsmask)" clip-path="url(#starsclip)" ></rect> </g>'
       )
-    );
-    __result = string(
-      abi.encodePacked(
-        __result,
-        '/clipPath> <mask id="starsmask"> <g filter="url(#stars)" transform="scale(2)"> <rect width="100%" height="100%"></rect> </g> </mask> <circle class="bc" cx="1000" cy="1060" r="260"></circle> <circle class="bc" cx="1000" cy="1060" r="360"></circle> <circle class="bc" cx="1000" cy="1060" r="440"></circle> <circle class="bc" cx="1000" cy="1060" r="',
-        __constant8,
-        __constant9,
-        '740" y1="610" x2="1260" y2="1510"></line> <',
-        __constant9,
-        '1260" y1="610" x2="740" y2="1510"></line> <',
-        __constant9,
-        '1450" y1="80',
-        __constant10,
-        '1320"></line> <',
-        __constant9,
-        '1450" y1="132',
-        __constant10,
-        '800"></line',
-        __constant11,
-        '2px);"> <rect width="100%" height="100%" fill="white" mask="url(#starsmask)"'
-      )
-    );
-    __result = string(
-      abi.encodePacked(__result, __constant12, 'arsclip)" ></rect> </g>')
     );
   }
 

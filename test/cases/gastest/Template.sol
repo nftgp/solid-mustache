@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.6;
 
-string constant __constant0 = '>\n  <rect class="c" x="100" y="1000" width="100" height="10" rx="4"></rect>\n  <rect class="c" x="100" y="1000" width="100" height="10" rx="4"></rect>\n  <rect class="c" x="100" y="1000" width="100" height="10" rx="4"></rect>\n  <rect class="c" x="100" y="1000" width="100" height="10" rx="4"></rect>\n  <rect class="c" x="100" y="1000" width="100" height="10" rx="4"></rect';
+string constant __constant0 = '>\n  <rect class="c" x="100" y="1000" width="100" height="10" rx="4"></rect';
 
 contract Template {
   struct __Input {
@@ -17,6 +17,14 @@ contract Template {
       abi.encodePacked(
         __result,
         '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 2000 3000"',
+        __constant0,
+        __constant0,
+        __constant0,
+        __constant0,
+        __constant0,
+        __constant0,
+        __constant0,
+        __constant0,
         __constant0,
         __constant0,
         ">\n  ",
