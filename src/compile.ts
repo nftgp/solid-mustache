@@ -35,6 +35,7 @@ interface Partial {
   name: string
   lines: CodeLine[]
   inputType: InputType
+  extra?: string // extract the partial into an extra library with the specified name
 }
 
 interface CodeLine {
@@ -83,7 +84,7 @@ interface Options {
 
 export const compile = (template: string, options: Options = {}): string => {
   const {
-    name = "Template",
+    name: templateName = "Template",
     header = "// SPDX-License-Identifier: UNLICENSED",
     solidityPragma = "^0.8.6",
     contract,
@@ -116,18 +117,36 @@ export const compile = (template: string, options: Options = {}): string => {
   const typeNames = generateTypeNames(scope.inputType)
   const structDefs = solDefineStructs(typeNames)
   const partialDefs = usedPartials
-    .reverse()
+    .filter((partial) => !partial.extra)
     .map((partial) => solDefinePartial(partial, typeNames))
     .join("\n\n")
+
+  const extraPartials = usedPartials
+    .filter((partial) => partial.extra)
+    .reduce((acc, partial) => {
+      const { extra } = partial
+      if (!extra) return acc
+      if (!acc[extra]) acc[extra] = []
+      acc[extra].push(partial)
+      return acc
+    }, {} as Record<string, Partial[]>)
+
+  const extraPartialDefs = Object.entries(extraPartials)
+    .map(([extraName, partials]) =>
+      solDefineExtraPartials(partials, extraName, templateName, typeNames)
+    )
+    .join("\n\n")
+
+  const constantDefs = [...constants.entries()]
+    .map(([name, value]) => `string constant ${name} = "${solEscape(value)}";`)
+    .join("\n")
 
   const solidityCode = `${header}
 pragma solidity ${solidityPragma};
 
-${[...constants.entries()]
-  .map(([name, value]) => `string constant ${name} = "${solEscape(value)}";`)
-  .join("\n")}
+${constantDefs}
 
-${contract ? "contract" : "library"} ${name} {
+${contract ? "contract" : "library"} ${templateName} {
 
   ${structDefs}
 
@@ -143,7 +162,10 @@ ${contract ? "contract" : "library"} ${name} {
 
   ${SOL_INT_TO_STRING}
 }
+
+${extraPartialDefs}
 `
+
   return format(solidityCode, {
     plugins: [prettierPluginSolidity],
     parser: "solidity-parse",
@@ -370,6 +392,10 @@ ${contract ? "contract" : "library"} ${name} {
       throw new Error(`Trying to use an unknown partial: ${partialName}`)
     }
 
+    const extra = (statement.hash?.pairs || []).find(
+      ({ key }) => key === "extra"
+    )?.value as AST.StringLiteral | undefined
+
     const contextPath = statement.params[0]
       ? scope.resolve(statement.params[0] as AST.PathExpression)
       : scope.path
@@ -388,11 +414,19 @@ ${contract ? "contract" : "library"} ${name} {
         name: partialName,
         lines: processProgram(ast, new Scope(inputType)),
         inputType,
+        extra: extra?.value,
       }
       usedPartials.push(partial)
+    } else {
+      if (extra?.value !== partial.extra) {
+        throw new Error(
+          `The partial ${partialName} is called with inconsistent extra values`
+        )
+      }
     }
 
-    return [{ append: [`${partial.name}(${contextPath})`] }]
+    const prefix = extra ? `${extra.value}.` : ""
+    return [{ append: [`${prefix}${partial.name}(${contextPath})`] }]
   }
 }
 
@@ -732,7 +766,14 @@ const solDefineStructs = (typeNames: TypeName[]): string => {
   return structDefs.join("\n\n")
 }
 
-const solDefinePartial = (partial: Partial, typeNames: TypeName[]) => {
+const solDefinePartial = (
+  partial: Partial,
+  typeNames: TypeName[],
+  {
+    visibility = "internal",
+    typeNamePrefix = "",
+  }: { visibility?: "internal" | "external"; typeNamePrefix?: string } = {}
+) => {
   const { name, lines, inputType } = partial
   const typeName = findTypeName(typeNames, inputType)
 
@@ -740,10 +781,31 @@ const solDefinePartial = (partial: Partial, typeNames: TypeName[]) => {
     inputType.type === "bool" || inputType.type === "uint" ? "" : " memory"
 
   return `
-  function ${name}(${typeName}${dataLocation} ${INPUT_VAR_NAME}) internal pure returns (string memory ${RESULT_VAR_NAME}) {
+  function ${name}(${typeNamePrefix}${typeName}${dataLocation} ${INPUT_VAR_NAME}) ${visibility} pure returns (string memory ${RESULT_VAR_NAME}) {
     ${lines.map((l) => l.line).join("\n")}
   }
   `
+}
+
+const solDefineExtraPartials = (
+  partials: Partial[],
+  extraName: string,
+  templateName: string,
+  typeNames: TypeName[]
+) => {
+  const partialDefs = partials
+    .map((partial) =>
+      solDefinePartial(partial, typeNames, {
+        visibility: "external",
+        typeNamePrefix: `${templateName}.`,
+      })
+    )
+    .join("\n\n")
+
+  return `
+  library ${extraName} {
+    ${partialDefs}
+  }`
 }
 
 const SOL_INT_TO_STRING = `function intToString(int256 i, uint256 decimals)

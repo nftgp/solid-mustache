@@ -108,26 +108,28 @@ describe.only("end-to-end test suite", () => {
       let contract: Contract
 
       before(async () => {
-        let contractSource = compile(template, {
+        const contractSource = compile(template, {
           contract: true,
           partials,
           parse: createOptimizingParse(configFile?.config),
           ...prettierConfig,
         })
 
-        // writeFileSync(
+        writeFileSync(
+          path.join(__dirname, "cases", name, "Template.sol"),
+          contractSource
+        )
+
+        // contractSource = readFileSync(
         //   path.join(__dirname, "cases", name, "Template.sol"),
-        //   contractSource
+        //   { encoding: "utf-8" }
         // )
 
-        contractSource = readFileSync(
-          path.join(__dirname, "cases", name, "Template.sol"),
-          { encoding: "utf-8" }
-        )
         const solcOutput = solCompile(contractSource)
 
         if (!solcOutput.contracts || solcOutput.errors) {
           console.error("Solc failed")
+          console.log(solcOutput)
           return
         }
         console.log("Successfully compiled Template.sol to bytecode")
