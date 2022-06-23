@@ -2,21 +2,24 @@
   "frame": { "title": "FLOURISHING MISTY WORLD", "level3": true },
   "stars": { "starsSeed": 132413 },
   "planets": [
-    { "x": -335, "y": 0, "visible": true },
-    { "x": -377, "y": -50, "visible": true },
-    { "x": -564, "y": -330, "visible": false },
-    { "x": -614, "y": -517, "visible": false },
-    { "x": -208, "y": -1465, "visible": false },
-    { "x": -428, "y": -123, "visible": true },
-    { "x": -629, "y": -712, "visible": false },
-    { "x": 1025, "y": -1320, "visible": false }
+    { "x": 10, "y": 154, "visible": true },
+    { "x": -39, "y": 157, "visible": true },
+    { "x": -247, "y": 163, "visible": true },
+    { "x": -341, "y": 148, "visible": true },
+    { "x": -694, "y": 20, "visible": false },
+    { "x": -105, "y": 156, "visible": true },
+    { "x": -421, "y": 131, "visible": true },
+    { "x": -1060, "y": -286, "visible": false }
   ],
   "aspects": [
-    { "x1": 223, "y1": -133, "x2": -218, "y2": 142 },
-    { "x1": 260, "y1": 0, "x2": 120, "y2": 231 },
-    { "x1": 258, "y1": -34, "x2": -106, "y2": 238 },
-    { "x1": 224, "y1": -131, "x2": 234, "y2": 113 },
-    { "x1": 172, "y1": -195, "x2": 257, "y2": 40 }
+    { "x1": 178, "y1": -189, "x2": 249, "y2": 74 },
+    { "x1": 202, "y1": 163, "x2": -57, "y2": 254 },
+    { "x1": 202, "y1": 163, "x2": -166, "y2": 200 },
+    { "x1": 17, "y1": -259, "x2": 240, "y2": -101 },
+    { "x1": 63, "y1": 252, "x2": -247, "y2": -83 },
+    { "x1": 217, "y1": 143, "x2": 0, "y2": 260 },
+    { "x1": 248, "y1": 77, "x2": 68, "y2": 251 },
+    { "x1": 0, "y1": 0, "x2": 0, "y2": 0 }
   ],
   "background": {
     "hue": 0,
@@ -59,12 +62,12 @@
     "layers": [
       {
         "turbType": "turbulence",
-        "turbFreqX": 0.001,
-        "turbFreqY": 0.001,
+        "turbFreqX": 1,
+        "turbFreqY": 1,
         "turbOct": 1,
         "turbBlur": 2,
         "dispScale": 200,
-        "specConstant": 0.75,
+        "specConstant": 75,
         "specExponent": 30,
         "surfaceScale": 5,
         "pointX": -50,
@@ -78,57 +81,33 @@
     ]
   },
   "stone": {
-    "turbType": "fractalNoise",
-    "turbFreqX": 0.004,
-    "turbFreqY": 0.007,
+    "fractalNoise": true,
+    "turbFreqX": 4,
+    "turbFreqY": 7,
     "turbOct": 2,
-    "redAmp": 0.69,
-    "redExp": -0.43,
-    "redOff": 0.16,
-    "greenAmp": 0.61,
-    "greenExp": -0.66,
-    "greenOff": -0.63,
-    "blueAmp": 0.58,
-    "blueExp": 0.01,
-    "blueOff": -0.15,
-    "rotation": 26,
+    "redAmp": 69,
+    "redExp": -43,
+    "redOff": 16,
+    "greenAmp": 61,
+    "greenExp": -66,
+    "greenOff": -63,
+    "blueAmp": 58,
+    "blueExp": 1,
+    "blueOff": -15,
+    "rotation": 306,
+    "seed": 1004123123,
     "seasonsAmplitude": 76,
-    "secondInDay": 59604.55,
-    "secondInYear": 13969053
+    "secondInDay": 41269,
+    "secondInYear": 14037118
   },
   "sparkle": {
     "sparkles": [
-      {
-        "ty": 391.6136462835958,
-        "tx": 187.4746810737406,
-        "scale": 0.8962530326055658
-      },
-      {
-        "ty": 589.0896098447873,
-        "tx": 1633.1620912485369,
-        "scale": 0.409025855746877
-      },
-      {
-        "ty": 382.8053562020036,
-        "tx": 425.8586546432447,
-        "scale": 0.5538792607669576
-      },
-      {
-        "ty": 1435.297180663201,
-        "tx": 273.8071962589959,
-        "scale": 0.9541531025098982
-      },
-      {
-        "ty": 380.6652321184142,
-        "tx": 1230.476996666956,
-        "scale": 0.3493180213573832
-      },
-      {
-        "ty": 689.6458358601778,
-        "tx": 1723.309567315027,
-        "scale": 0.4153771077466417
-      }
+      { "scale": 1, "tx": 1352, "ty": 349 },
+      { "scale": 0.35, "tx": 249, "ty": 1000 },
+      { "scale": 0.55, "tx": 1169, "ty": 1155 },
+      { "scale": 0.75, "tx": 1448, "ty": 1355 },
+      { "scale": 0.55, "tx": 1148, "ty": 1410 }
     ]
   },
-  "xp": { "cap": 10000, "amount": 3221, "crown": false }
+  "xp": { "cap": 10000, "amount": 2705, "crown": false }
 }
