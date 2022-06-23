@@ -37,7 +37,7 @@ function solCompile(contractSource: string) {
   )
 }
 
-describe("end-to-end test suite", () => {
+describe.only("end-to-end test suite", () => {
   let cases = readdirSync(path.join(__dirname, "cases"), {
     withFileTypes: true,
   })

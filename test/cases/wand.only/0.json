@@ -1,0 +1,134 @@
+{
+  "frame": { "title": "FLOURISHING MISTY WORLD", "level3": true },
+  "stars": { "starsSeed": 132413 },
+  "planets": [
+    { "x": -335, "y": 0, "visible": true },
+    { "x": -377, "y": -50, "visible": true },
+    { "x": -564, "y": -330, "visible": false },
+    { "x": -614, "y": -517, "visible": false },
+    { "x": -208, "y": -1465, "visible": false },
+    { "x": -428, "y": -123, "visible": true },
+    { "x": -629, "y": -712, "visible": false },
+    { "x": 1025, "y": -1320, "visible": false }
+  ],
+  "aspects": [
+    { "x1": 223, "y1": -133, "x2": -218, "y2": 142 },
+    { "x1": 260, "y1": 0, "x2": 120, "y2": 231 },
+    { "x1": 258, "y1": -34, "x2": -106, "y2": 238 },
+    { "x1": 224, "y1": -131, "x2": 234, "y2": 113 },
+    { "x1": 172, "y1": -195, "x2": 257, "y2": 40 }
+  ],
+  "background": {
+    "hue": 0,
+    "radial": true,
+    "color": { "hue": 50, "saturation": 50, "lightness": 50 },
+    "dark": true
+  },
+  "halo": {
+    "halo0": true,
+    "rhythm": [
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false
+    ],
+    "hue": 230
+  },
+  "handle": { "handle0": true },
+  "filter": {
+    "layers": [
+      {
+        "turbType": "turbulence",
+        "turbFreqX": 0.001,
+        "turbFreqY": 0.001,
+        "turbOct": 1,
+        "turbBlur": 2,
+        "dispScale": 200,
+        "specConstant": 0.75,
+        "specExponent": 30,
+        "surfaceScale": 5,
+        "pointX": -50,
+        "pointY": -100,
+        "pointZ": 400,
+        "lightColor": "#ffffff",
+        "opacity": 1,
+        "blurX": 2,
+        "blurY": 2
+      }
+    ]
+  },
+  "stone": {
+    "turbType": "fractalNoise",
+    "turbFreqX": 0.004,
+    "turbFreqY": 0.007,
+    "turbOct": 2,
+    "redAmp": 0.69,
+    "redExp": -0.43,
+    "redOff": 0.16,
+    "greenAmp": 0.61,
+    "greenExp": -0.66,
+    "greenOff": -0.63,
+    "blueAmp": 0.58,
+    "blueExp": 0.01,
+    "blueOff": -0.15,
+    "rotation": 26,
+    "seasonsAmplitude": 76,
+    "secondInDay": 59604.55,
+    "secondInYear": 13969053
+  },
+  "sparkle": {
+    "sparkles": [
+      {
+        "ty": 391.6136462835958,
+        "tx": 187.4746810737406,
+        "scale": 0.8962530326055658
+      },
+      {
+        "ty": 589.0896098447873,
+        "tx": 1633.1620912485369,
+        "scale": 0.409025855746877
+      },
+      {
+        "ty": 382.8053562020036,
+        "tx": 425.8586546432447,
+        "scale": 0.5538792607669576
+      },
+      {
+        "ty": 1435.297180663201,
+        "tx": 273.8071962589959,
+        "scale": 0.9541531025098982
+      },
+      {
+        "ty": 380.6652321184142,
+        "tx": 1230.476996666956,
+        "scale": 0.3493180213573832
+      },
+      {
+        "ty": 689.6458358601778,
+        "tx": 1723.309567315027,
+        "scale": 0.4153771077466417
+      }
+    ]
+  },
+  "xp": { "cap": 10000, "amount": 3221, "crown": false }
+}
