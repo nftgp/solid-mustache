@@ -61,7 +61,7 @@
   "filter": {
     "layers": [
       {
-        "turbType": "turbulence",
+        "fractalNoise": false,
         "turbFreqX": 1,
         "turbFreqY": 1,
         "turbOct": 1,
@@ -74,7 +74,7 @@
         "pointY": -100,
         "pointZ": 400,
         "lightColor": "#ffffff",
-        "opacity": 1,
+        "opacity": 100,
         "blurX": 2,
         "blurY": 2
       }
@@ -103,10 +103,10 @@
   "sparkle": {
     "sparkles": [
       { "scale": 1, "tx": 1352, "ty": 349 },
-      { "scale": 0.35, "tx": 249, "ty": 1000 },
-      { "scale": 0.55, "tx": 1169, "ty": 1155 },
-      { "scale": 0.75, "tx": 1448, "ty": 1355 },
-      { "scale": 0.55, "tx": 1148, "ty": 1410 }
+      { "scale": 35, "tx": 249, "ty": 1000 },
+      { "scale": 55, "tx": 1169, "ty": 1155 },
+      { "scale": 75, "tx": 1448, "ty": 1355 },
+      { "scale": 55, "tx": 1148, "ty": 1410 }
     ]
   },
   "xp": { "cap": 10000, "amount": 2705, "crown": false }
