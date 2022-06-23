@@ -26,6 +26,11 @@ function solCompile(contractSource: string) {
           },
         },
         settings: {
+          // This should potentially reduce the deploy cost of the contract, but leads to "Stack too deep" compiler error for some reason
+          // optimizer: {
+          //   enabled: true,
+          //   runs: 1,
+          // },
           outputSelection: {
             "*": {
               "*": ["*"],
