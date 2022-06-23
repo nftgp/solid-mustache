@@ -4,15 +4,16 @@ import path, { dirname } from "path"
 import { expect } from "chai"
 import { cosmiconfigSync } from "cosmiconfig"
 import { Contract } from "ethers"
+import { Bytes, keccak256, toUtf8Bytes } from "ethers/lib/utils"
 import { ethers } from "hardhat"
+import solc from "solc"
+import linker from "solc/linker"
 
 import "@nomiclabs/hardhat-ethers"
 
 import prettierConfig from "../.prettierrc.json"
 import { compile } from "../src/compile"
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const solc = require("solc")
+import { createOptimizingParse } from "../src/optimizingParse"
 
 function solCompile(contractSource: string) {
   return JSON.parse(
@@ -25,6 +26,11 @@ function solCompile(contractSource: string) {
           },
         },
         settings: {
+          // This should potentially reduce the deploy cost of the contract, but leads to "Stack too deep" compiler error for some reason
+          // optimizer: {
+          //   enabled: true,
+          //   runs: 1,
+          // },
           outputSelection: {
             "*": {
               "*": ["*"],
@@ -36,7 +42,7 @@ function solCompile(contractSource: string) {
   )
 }
 
-describe("end-to-end test suite", () => {
+describe.only("end-to-end test suite", () => {
   let cases = readdirSync(path.join(__dirname, "cases"), {
     withFileTypes: true,
   })
@@ -108,9 +114,9 @@ describe("end-to-end test suite", () => {
 
       before(async () => {
         const contractSource = compile(template, {
-          ...configFile?.config,
           contract: true,
           partials,
+          parse: createOptimizingParse(configFile?.config),
           ...prettierConfig,
         })
 
@@ -119,30 +125,79 @@ describe("end-to-end test suite", () => {
           contractSource
         )
 
+        // contractSource = readFileSync(
+        //   path.join(__dirname, "cases", name, "Template.sol"),
+        //   { encoding: "utf-8" }
+        // )
+
         const solcOutput = solCompile(contractSource)
 
         if (!solcOutput.contracts || solcOutput.errors) {
           console.error("Solc failed")
-          console.error(solcOutput)
+          console.log(solcOutput)
           return
         }
-
-        const { abi } = solcOutput.contracts["Template.sol"].Template
-        const bytecode =
-          solcOutput.contracts["Template.sol"].Template.evm.bytecode.object
-
-        const size = computeBytecodeSizeInKiB(bytecode)
-        const MAX_CONTRACT_SIZE = 24
-
-        console.log(
-          `Successfully compiled Template.sol to bytecode (size: ${Math.round(
-            size
-          )} KiB, ${Math.round((100 * size) / MAX_CONTRACT_SIZE)}% of limit)`
-        )
+        console.log("Successfully compiled Template.sol to bytecode")
 
         const [signer] = await ethers.getSigners()
-        const factory = new ethers.ContractFactory(abi, bytecode, signer)
-        // const deploymentData = factory.interface.encodeDeploy()
+        const MAX_CONTRACT_SIZE = 24
+
+        const { Template, ...compiledPartials } =
+          solcOutput.contracts["Template.sol"]
+        // console.log(Template)
+        const { abi } = Template
+        let templateBytecode = Template.evm.bytecode.object
+
+        const partialEntries = Object.entries(compiledPartials)
+        const links = {} as Record<string, string>
+        for (let i = 0; i < partialEntries.length; i++) {
+          const [name, Partial] = partialEntries[i] as [string, any]
+          const { abi, evm } = Partial
+          const factory = new ethers.ContractFactory(
+            abi,
+            evm.bytecode.object,
+            signer
+          )
+
+          const size = computeBytecodeSizeInKiB(evm.bytecode.object)
+          console.log(
+            `${name} bytecode size: ${Math.round(size)} KiB, ${Math.round(
+              (100 * size) / MAX_CONTRACT_SIZE
+            )}% of limit`
+          )
+
+          const gas = await ethers.provider.estimateGas(
+            factory.getDeployTransaction()
+          )
+          contract = await factory.deploy()
+          console.log(
+            `Successfully deployed ${name} to ${contract.address} (gas: ${gas})`
+          )
+          const key = keccak256(toUtf8Bytes(`Template.sol:${name}`)).substring(
+            2,
+            36
+          )
+          links[`$${key}$`] = contract.address
+        }
+
+        if (partialEntries.length > 0) {
+          templateBytecode = linker.linkBytecode(templateBytecode, links)
+          console.log(`Successfully linked ${partialEntries.length} libraries`)
+        }
+
+        const size = computeBytecodeSizeInKiB(templateBytecode)
+        console.log(
+          `Template bytecode size: ${Math.round(size)} KiB, ${Math.round(
+            (100 * size) / MAX_CONTRACT_SIZE
+          )}% of limit`
+        )
+
+        const factory = new ethers.ContractFactory(
+          abi,
+          templateBytecode,
+          signer
+        )
+
         const gas = await ethers.provider.estimateGas(
           factory.getDeployTransaction()
         )

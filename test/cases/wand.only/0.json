@@ -1,32 +1,31 @@
 {
-  "title": "FLOURISHING MISTY WORLD",
-  "background": { "bg0": true },
+  "frame": { "title": "FLOURISHING MISTY WORLD", "level3": true },
+  "stars": { "starsSeed": 132413 },
   "planets": [
-    { "x": -114, "y": 370 },
-    { "x": -225, "y": 334 },
-    { "x": -227, "y": 379 },
-    { "x": 121, "y": 295 },
-    { "x": -19, "y": 357 },
-    { "x": 361, "y": 13 },
-    { "x": 176, "y": 259 },
-    { "x": -156, "y": 388 }
+    { "x": 10, "y": 154, "visible": true },
+    { "x": -39, "y": 157, "visible": true },
+    { "x": -247, "y": 163, "visible": true },
+    { "x": -341, "y": 148, "visible": true },
+    { "x": -694, "y": 20, "visible": false },
+    { "x": -105, "y": 156, "visible": true },
+    { "x": -421, "y": 131, "visible": true },
+    { "x": -1060, "y": -286, "visible": false }
   ],
   "aspects": [
-    { "x1": 259, "y1": 26, "x2": -91, "y2": -244 },
-    { "x1": 259, "y1": 26, "x2": -259, "y2": -26 },
-    { "x1": 83, "y1": 247, "x2": 84, "y2": 246 },
-    { "x1": 83, "y1": 247, "x2": 258, "y2": 34 },
-    { "x1": 87, "y1": 245, "x2": 258, "y2": 30 },
-    { "x1": 248, "y1": 77, "x2": 191, "y2": -177 }
+    { "x1": 178, "y1": -189, "x2": 249, "y2": 74 },
+    { "x1": 202, "y1": 163, "x2": -57, "y2": 254 },
+    { "x1": 202, "y1": 163, "x2": -166, "y2": 200 },
+    { "x1": 17, "y1": -259, "x2": 240, "y2": -101 },
+    { "x1": 63, "y1": 252, "x2": -247, "y2": -83 },
+    { "x1": 217, "y1": 143, "x2": 0, "y2": 260 },
+    { "x1": 248, "y1": 77, "x2": 68, "y2": 251 },
+    { "x1": 0, "y1": 0, "x2": 0, "y2": 0 }
   ],
-  "starsSeed": "5",
-  "stone": {
-    "numOctaves": 1,
-    "gOff": -75,
-    "seasonsAmplitude": 260,
-    "northernHemisphere": true,
-    "secondInYear": 15389663,
-    "secondInDay": 43200
+  "background": {
+    "hue": 0,
+    "radial": true,
+    "color": { "hue": 50, "saturation": 50, "lightness": 50 },
+    "dark": true
   },
   "halo": {
     "halo0": true,
@@ -55,6 +54,60 @@
       false,
       true,
       false
+    ],
+    "hue": 230
+  },
+  "handle": { "handle0": true },
+  "filter": {
+    "layers": [
+      {
+        "fractalNoise": false,
+        "turbFreqX": 1,
+        "turbFreqY": 1,
+        "turbOct": 1,
+        "turbBlur": 2,
+        "dispScale": 200,
+        "specConstant": 75,
+        "specExponent": 30,
+        "surfaceScale": 5,
+        "pointX": -50,
+        "pointY": -100,
+        "pointZ": 400,
+        "lightColor": "#ffffff",
+        "opacity": 100,
+        "blurX": 2,
+        "blurY": 2
+      }
     ]
-  }
+  },
+  "stone": {
+    "fractalNoise": true,
+    "turbFreqX": 4,
+    "turbFreqY": 7,
+    "turbOct": 2,
+    "redAmp": 69,
+    "redExp": -43,
+    "redOff": 16,
+    "greenAmp": 61,
+    "greenExp": -66,
+    "greenOff": -63,
+    "blueAmp": 58,
+    "blueExp": 1,
+    "blueOff": -15,
+    "rotation": 306,
+    "seed": 1004123123,
+    "seasonsAmplitude": 76,
+    "secondInDay": 41269,
+    "secondInYear": 14037118
+  },
+  "sparkle": {
+    "sparkles": [
+      { "scale": 1, "tx": 1352, "ty": 349 },
+      { "scale": 35, "tx": 249, "ty": 1000 },
+      { "scale": 55, "tx": 1169, "ty": 1155 },
+      { "scale": 75, "tx": 1448, "ty": 1355 },
+      { "scale": 55, "tx": 1148, "ty": 1410 }
+    ]
+  },
+  "xp": { "cap": 10000, "amount": 2705, "crown": false }
 }

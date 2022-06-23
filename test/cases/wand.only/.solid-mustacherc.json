@@ -1,3 +1,4 @@
 {
-  "condenseWhitespace": true
+  "condenseWhitespace": true,
+  "dedupeThreshold": 128
 }

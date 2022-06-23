@@ -1,7 +1,8 @@
-import { AST, parse } from "@handlebars/parser"
+import { AST } from "@handlebars/parser"
 import { format } from "prettier"
 import prettierPluginSolidity from "prettier-plugin-solidity"
-import { boolean } from "yargs"
+
+import { createOptimizingParse } from "./optimizingParse"
 
 type UnknownInput = { type: undefined }
 type StringInput = { type: "string"; length?: number }
@@ -14,6 +15,7 @@ type ArrayInput = {
   length?: number
   elementType: InputType
 }
+
 type StructInput = {
   type: "struct"
   members: {
@@ -34,6 +36,7 @@ interface Partial {
   name: string
   lines: CodeLine[]
   inputType: InputType
+  extra?: string // extract the partial into an extra library with the specified name
 }
 
 interface CodeLine {
@@ -48,6 +51,15 @@ const INPUT_STRUCT_NAME = "__Input"
 const INPUT_VAR_NAME = "__input"
 const RESULT_VAR_NAME = "__result"
 
+type ParseFunction = (
+  input: string,
+  partials: Record<string, string>
+) => {
+  program: AST.Program
+  partials: Map<string, AST.Program>
+  constants?: Map<string, string>
+}
+
 interface Options {
   /** Assign a custom name to the library/contract (default: "Template") */
   name?: string
@@ -60,7 +72,7 @@ interface Options {
   /** Allows providing additional templates that can be used via partial call expressions */
   partials?: Record<string, string>
   /** Set to true to condense sequences of whitespace into single space, saving some contract size */
-  condenseWhitespace?: boolean
+  parse?: ParseFunction
 
   /* Formatting options for prettier */
   printWidth?: number
@@ -73,25 +85,26 @@ interface Options {
 
 export const compile = (template: string, options: Options = {}): string => {
   const {
-    name = "Template",
+    name: templateName = "Template",
     header = "// SPDX-License-Identifier: UNLICENSED",
     solidityPragma = "^0.8.6",
     contract,
-    partials,
-    condenseWhitespace: shallCondenseWhitespace,
+    partials = {},
+    parse = createOptimizingParse(),
 
     ...formatOptions
   } = options
 
-  const preprocessedTemplate = shallCondenseWhitespace
-    ? condenseWhitespace(template)
-    : template
-  const ast = parse(preprocessedTemplate)
+  const {
+    program,
+    partials: partialPrograms,
+    constants = new Map<string, string>(),
+  } = parse(template, partials)
 
   const scope = new Scope()
   const usedPartials: Partial[] = []
 
-  const lines = processProgram(ast, scope)
+  const lines = processProgram(program, scope)
 
   if (scope.inputType.type !== "struct") {
     throw new Error("Unexpected input type")
@@ -105,14 +118,36 @@ export const compile = (template: string, options: Options = {}): string => {
   const typeNames = generateTypeNames(scope.inputType)
   const structDefs = solDefineStructs(typeNames)
   const partialDefs = usedPartials
-    .reverse()
+    .filter((partial) => !partial.extra)
     .map((partial) => solDefinePartial(partial, typeNames))
     .join("\n\n")
+
+  const extraPartials = usedPartials
+    .filter((partial) => partial.extra)
+    .reduce((acc, partial) => {
+      const { extra } = partial
+      if (!extra) return acc
+      if (!acc[extra]) acc[extra] = []
+      acc[extra].push(partial)
+      return acc
+    }, {} as Record<string, Partial[]>)
+
+  const extraPartialDefs = Object.entries(extraPartials)
+    .map(([extraName, partials]) =>
+      solDefineExtraPartials(partials, extraName, templateName, typeNames)
+    )
+    .join("\n\n")
+
+  const constantDefs = [...constants.entries()]
+    .map(([name, value]) => `string constant ${name} = "${solEscape(value)}";`)
+    .join("\n")
 
   const solidityCode = `${header}
 pragma solidity ${solidityPragma};
 
-${contract ? "contract" : "library"} ${name} {
+${constantDefs}
+
+${contract ? "contract" : "library"} ${templateName} {
 
   ${structDefs}
 
@@ -125,10 +160,13 @@ ${contract ? "contract" : "library"} ${name} {
   }
 
   ${partialDefs}
-
-  ${SOL_INT_TO_STRING}
 }
+
+${extraPartialDefs}
+
+${SOL_HELPERS_LIBRARY}
 `
+
   return format(solidityCode, {
     plugins: [prettierPluginSolidity],
     parser: "solidity-parse",
@@ -214,7 +252,13 @@ ${contract ? "contract" : "library"} ${name} {
     const path = statement.path as AST.PathExpression
     const intMatch = path.original.match(/^(uint|int)(\d*)$/)
     const bytesMatch = path.original.match(/^bytes(\d*)$/)
-    if (intMatch) {
+
+    if (path.original === "@index") {
+      const fullPath = scope.resolve(path)
+      return [
+        { append: [`${HELPER_LIBRARY_NAME}.uintToString(${fullPath}, 0)`] },
+      ]
+    } else if (intMatch) {
       const decimalsHashParam = (statement.hash?.pairs || []).find(
         (p) => p.key === "decimals"
       )
@@ -224,7 +268,13 @@ ${contract ? "contract" : "library"} ${name} {
       const length = intMatch[2] ? parseInt(intMatch[2]) : undefined
       const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
       narrowInput(scope.inputType, fullPath, type, length)
-      return [{ append: [`${type}ToString(${fullPath}, ${decimals})`] }]
+      return [
+        {
+          append: [
+            `${HELPER_LIBRARY_NAME}.${type}ToString(${fullPath}, ${decimals})`,
+          ],
+        },
+      ]
     } else if (bytesMatch) {
       const length = parseInt(bytesMatch[1])
       const fullPath = scope.resolve(statement.params[0] as AST.PathExpression)
@@ -355,27 +405,41 @@ ${contract ? "contract" : "library"} ${name} {
       throw new Error(`Trying to use an unknown partial: ${partialName}`)
     }
 
+    const extra = (statement.hash?.pairs || []).find(
+      ({ key }) => key === "extra"
+    )?.value as AST.StringLiteral | undefined
+
     const contextPath = statement.params[0]
       ? scope.resolve(statement.params[0] as AST.PathExpression)
       : scope.path
 
     let partial = usedPartials.find((p) => p.name === partialName)
     if (!partial) {
-      const preprocessedPartialTemplate = shallCondenseWhitespace
-        ? condenseWhitespace(partialTemplate)
-        : partialTemplate
-      const ast = parse(preprocessedPartialTemplate)
+      const ast = partialPrograms.get(partialName)
+      if (!ast) {
+        throw new Error(
+          `parse function did not return an AST for partial ${partialName}`
+        )
+      }
       const inputType = resolveType(scope.inputType, contextPath)
 
       partial = {
         name: partialName,
         lines: processProgram(ast, new Scope(inputType)),
         inputType,
+        extra: extra?.value,
       }
       usedPartials.push(partial)
+    } else {
+      if (extra?.value !== partial.extra) {
+        throw new Error(
+          `The partial ${partialName} is called with inconsistent extra values`
+        )
+      }
     }
 
-    return [{ append: [`${partial.name}(${contextPath})`] }]
+    const prefix = extra ? `${extra.value}.` : ""
+    return [{ append: [`${prefix}${partial.name}(${contextPath})`] }]
   }
 }
 
@@ -436,6 +500,12 @@ class Scope {
     const BUILT_IN_ALIASES = ["@index"]
     if (BUILT_IN_ALIASES.includes(original)) {
       return this.aliases[original]
+    }
+
+    if (original.startsWith("__constant")) {
+      // for optimization purposes (dedupe repeated substrings), we turn some content statements into path expressions referencing constant strings
+      // those constants start with __constant, so they are easy to detect
+      return original
     }
 
     if (typeof parts[0] !== "string")
@@ -709,7 +779,14 @@ const solDefineStructs = (typeNames: TypeName[]): string => {
   return structDefs.join("\n\n")
 }
 
-const solDefinePartial = (partial: Partial, typeNames: TypeName[]) => {
+const solDefinePartial = (
+  partial: Partial,
+  typeNames: TypeName[],
+  {
+    visibility = "internal",
+    typeNamePrefix = "",
+  }: { visibility?: "internal" | "external"; typeNamePrefix?: string } = {}
+) => {
   const { name, lines, inputType } = partial
   const typeName = findTypeName(typeNames, inputType)
 
@@ -717,54 +794,79 @@ const solDefinePartial = (partial: Partial, typeNames: TypeName[]) => {
     inputType.type === "bool" || inputType.type === "uint" ? "" : " memory"
 
   return `
-  function ${name}(${typeName}${dataLocation} ${INPUT_VAR_NAME}) internal pure returns (string memory ${RESULT_VAR_NAME}) {
+  function ${name}(${typeNamePrefix}${typeName}${dataLocation} ${INPUT_VAR_NAME}) ${visibility} pure returns (string memory ${RESULT_VAR_NAME}) {
     ${lines.map((l) => l.line).join("\n")}
   }
   `
 }
 
-const SOL_INT_TO_STRING = `function intToString(int256 i, uint256 decimals)
-internal
-pure
-returns (string memory)
-{
-if (i >= 0) {
-  return uintToString(uint256(i), decimals);
-}
-return string(abi.encodePacked("-", uintToString(uint256(-i), decimals)));
+const solDefineExtraPartials = (
+  partials: Partial[],
+  extraName: string,
+  templateName: string,
+  typeNames: TypeName[]
+) => {
+  const partialDefs = partials
+    .map((partial) =>
+      solDefinePartial(partial, typeNames, {
+        visibility: "external",
+        typeNamePrefix: `${templateName}.`,
+      })
+    )
+    .join("\n\n")
+
+  return `
+  library ${extraName} {
+    ${partialDefs}
+  }`
 }
 
-function uintToString(uint256 i, uint256 decimals)
-internal
-pure
-returns (string memory)
-{
-if (i == 0) {
-  return "0";
-}
-uint256 j = i;
-uint256 len;
-while (j != 0) {
-  len++;
-  j /= 10;
-}
-uint256 strLen = decimals >= len
-  ? decimals + 2
-  : (decimals > 0 ? len : len + 1);
-
-bytes memory bstr = new bytes(strLen);
-uint256 k = strLen;
-while (k > 0) {
-  k -= 1;
-  uint8 temp = (48 + uint8(i - (i / 10) * 10));
-  i /= 10;
-  bstr[k] = bytes1(temp);
-  if (decimals > 0 && strLen - k == decimals) {
-    k -= 1;
-    bstr[k] = ".";
+const HELPER_LIBRARY_NAME = "SolidMustacheHelpers"
+const SOL_HELPERS_LIBRARY = `
+library ${HELPER_LIBRARY_NAME} {
+  function intToString(int256 i, uint256 decimals)
+    internal
+    pure
+    returns (string memory)
+  {
+    if (i >= 0) {
+      return uintToString(uint256(i), decimals);
+    }
+    return string(abi.encodePacked("-", uintToString(uint256(-i), decimals)));
   }
-}
-return string(bstr);
+
+  function uintToString(uint256 i, uint256 decimals)
+    internal
+    pure
+    returns (string memory)
+  {
+    if (i == 0) {
+      return "0";
+    }
+    uint256 j = i;
+    uint256 len;
+    while (j != 0) {
+      len++;
+      j /= 10;
+    }
+    uint256 strLen = decimals >= len
+      ? decimals + 2
+      : (decimals > 0 ? len + 1 : len);
+
+    bytes memory bstr = new bytes(strLen);
+    uint256 k = strLen;
+    while (k > 0) {
+      k -= 1;
+      uint8 temp = (48 + uint8(i - (i / 10) * 10));
+      i /= 10;
+      bstr[k] = bytes1(temp);
+      if (decimals > 0 && strLen - k == decimals) {
+        k -= 1;
+        bstr[k] = ".";
+      }
+    }
+    return string(bstr);
+  }
 }`
 
 const compatible = (a: InputType, b: InputType): boolean => {
@@ -801,5 +903,3 @@ const incrementName = (str: string) => {
   if (isNaN(i)) i = 1
   return `${base}${i + 1}`
 }
-
-const condenseWhitespace = (str: string) => str.replace(/\s+/g, " ")

@@ -7,6 +7,7 @@ import yargs from "yargs"
 import { hideBin } from "yargs/helpers"
 
 import { compile } from "./compile"
+import { createOptimizingParse } from "./optimizingParse"
 
 const { argv } = yargs(hideBin(process.argv)).command(
   "* <template-file> [options]",
@@ -40,17 +41,23 @@ const { argv } = yargs(hideBin(process.argv)).command(
         default: "// SPDX-License-Identifier: UNLICENSED",
         description: "Define a custom header for the .sol file",
       })
+      .option("partials", {
+        alias: "p",
+        type: "string",
+        description:
+          "Glob pattern for partial template files. Registers the partials under their respective file names (without extension).",
+      })
       .option("condense", {
         alias: "c",
         type: "boolean",
         description:
           "Condense sequences of consecutive whitespace into a single space char",
       })
-      .option("partials", {
-        alias: "p",
-        type: "string",
+      .option("dedupe-threshold", {
+        type: "number",
+        default: Infinity,
         description:
-          "Glob pattern for partial template files. Registers the partials under their respective file names (without extension).",
+          "Extract duplicate template substrings longer than the specified threshold into constants to potentially reduce the bytecode size.",
       })
       .option("print-width", {
         type: "number",
@@ -87,8 +94,9 @@ const main = async () => {
     name,
     solidityPragma,
     header,
-    condense,
     partials,
+    condense,
+    dedupeThreshold,
     noBracketSpacing,
     noExplicitTypes,
     ...otherFormatOptions
@@ -111,7 +119,10 @@ const main = async () => {
     solidityPragma,
     header,
     partials: loadPartials(partials || defaultPartials),
-    condenseWhitespace: condense,
+    parse: createOptimizingParse({
+      condenseWhitespace: condense,
+      dedupeThreshold,
+    }),
 
     bracketSpacing: !noBracketSpacing,
     explicitTypes: !noExplicitTypes,
