@@ -141,10 +141,10 @@ Templates also support integer to string conversion, so that input fields can be
 
 The integer to string conversion even allows printing integers with a fixed number of decimal places, for example:
 
-| expression                  | `myNumber` value | printed result |
-| :-------------------------- | :--------------- | :------------- |
-| `uint8 myNumber decimals=2` | `123`            | `1.23`         |
-| `int16 myNumber decimals=3` | `-9`             | `-0.009`       |
+| expression                      | `myNumber` value | printed result |
+| :------------------------------ | :--------------- | :------------- |
+| `{{uint8 myNumber decimals=2}}` | `123`            | `1.23`         |
+| `{{int16 myNumber decimals=3}}` | `-9`             | `-0.009`       |
 
 #### Partials
 
