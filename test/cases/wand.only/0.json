@@ -100,14 +100,12 @@
     "secondInDay": 41269,
     "secondInYear": 14037118
   },
-  "sparkle": {
-    "sparkles": [
-      { "scale": 1, "tx": 1352, "ty": 349 },
-      { "scale": 35, "tx": 249, "ty": 1000 },
-      { "scale": 55, "tx": 1169, "ty": 1155 },
-      { "scale": 75, "tx": 1448, "ty": 1355 },
-      { "scale": 55, "tx": 1148, "ty": 1410 }
-    ]
-  },
+  "sparkles": [
+    { "scale": 1, "tx": 1352, "ty": 349 },
+    { "scale": 35, "tx": 249, "ty": 1000 },
+    { "scale": 55, "tx": 1169, "ty": 1155 },
+    { "scale": 75, "tx": 1448, "ty": 1355 },
+    { "scale": 55, "tx": 1148, "ty": 1410 }
+  ],
   "xp": { "cap": 10000, "amount": 2705, "crown": false }
 }
