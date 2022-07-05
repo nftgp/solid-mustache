@@ -124,7 +124,7 @@ It uses some heuristics for choosing appropriate types for struct fields:
 | iterator                               | `{{#each items}}` | `string[] items;`                                                          |
 | conditional                            | `{{#if active}}`  | `bool active;`                                                             |
 
-Out of gas cost considerations it might be preferable to use fixed length types when possible.
+For gas cost reasons it might be preferable to use fixed length types when possible.
 This can be achieved by using built-in helper syntax:
 
 | condition                       | example                    | type chosen        |
@@ -138,6 +138,13 @@ Templates also support integer to string conversion, so that input fields can be
 | :--------------- | :----------------- | :-------------- |
 | `uint<N>` helper | `{{uint number}}`  | `uint number;`  |
 | `int<N>` helper  | `{{int16 number}}` | `int16 number;` |
+
+The integer to string conversion even allows printing integers with a fixed number of decimal places, for example:
+
+| expression                      | `myNumber` value | printed result |
+| :------------------------------ | :--------------- | :------------- |
+| `{{uint8 myNumber decimals=2}}` | `123`            | `1.23`         |
+| `{{int16 myNumber decimals=3}}` | `-9`             | `-0.009`       |
 
 #### Partials
 
@@ -155,6 +162,13 @@ It's possible to execute partials on a custom context by passing a path expressi
 
 ```
 {{> myPartial myStructField}}
+```
+
+Partials are useful for splitting large templates into multiple Solidity libraries to keep each one of them within the EVM contract size limit.
+This is achieved using the `extra` hash param, specifiying the name for the extra library to split out for the partial:
+
+```
+{{> myPartial extra="MyPartial" }}
 ```
 
 ### Configuration
@@ -219,6 +233,15 @@ When using the API, partials are specified as an object, where keys are the part
 | Default | Config field                              | CLI Override        |
 | ------- | ----------------------------------------- | ------------------- |
 |         | `partials: { <name0>: <template0>, ... }` | `--partials <glob>` |
+
+#### Deduplication
+
+Extract duplicate template substrings longer than the specified threshold into constants to potentially reduce the bytecode size.
+
+| Default | Config field             | CLI Override               |
+| ------- | ------------------------ | -------------------------- |
+|         | `dedupeThreshold: <int>` | `--dedupe-threshold <int>` |
+
 
 #### Print Width
 
