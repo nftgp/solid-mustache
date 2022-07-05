@@ -3,7 +3,7 @@ import path, { dirname } from "path"
 
 import { expect } from "chai"
 import { cosmiconfigSync } from "cosmiconfig"
-import { Contract } from "ethers"
+import { BigNumber, Contract } from "ethers"
 import { Bytes, keccak256, toUtf8Bytes } from "ethers/lib/utils"
 import { ethers } from "hardhat"
 import solc from "solc"
@@ -148,6 +148,7 @@ describe.only("end-to-end test suite", () => {
         const { abi } = Template
         let templateBytecode = Template.evm.bytecode.object
 
+        let totalGas = BigNumber.from(0)
         const partialEntries = Object.entries(compiledPartials)
         const links = {} as Record<string, string>
         for (let i = 0; i < partialEntries.length; i++) {
@@ -169,6 +170,7 @@ describe.only("end-to-end test suite", () => {
           const gas = await ethers.provider.estimateGas(
             factory.getDeployTransaction()
           )
+          totalGas = totalGas.add(gas)
           contract = await factory.deploy()
           console.log(
             `Successfully deployed ${name} to ${contract.address} (gas: ${gas})`
@@ -201,9 +203,11 @@ describe.only("end-to-end test suite", () => {
         const gas = await ethers.provider.estimateGas(
           factory.getDeployTransaction()
         )
+        totalGas = totalGas.add(gas)
         contract = await factory.deploy()
 
         console.log(`Successfully deployed template contract (gas: ${gas})`)
+        console.log(`Total gas for deployment: ${totalGas}`)
       })
 
       const [, outputExtension] = templateFile.name.split(".")
