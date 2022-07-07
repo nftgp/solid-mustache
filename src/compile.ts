@@ -693,11 +693,20 @@ const generateTypeNames = (
       compatible(existing.inputType, fieldType)
     )
 
-    let structName = existingStruct
-      ? existingStruct.name
-      : fieldName[0].toUpperCase() + fieldName.substring(1)
-
-    if (!existingStruct) {
+    let structName = fieldName[0].toUpperCase() + fieldName.substring(1)
+    if (existingStruct) {
+      if (
+        structName.length < existingStruct.name.length &&
+        !result.some(({ name }) => name === structName)
+      ) {
+        // struct name is unique and shorter than the existing one, so let's use the new name instead
+        existingStruct.name = structName
+      } else {
+        // use existing struct name
+        structName = existingStruct.name
+      }
+    } else {
+      // find new unique struct name
       while (result.some(({ name }) => name === structName))
         structName = incrementName(structName)
     }
