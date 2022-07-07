@@ -1,6 +1,6 @@
 {
   "frame": { "title": "FLOURISHING MISTY WORLD", "level3": true },
-  "stars": { "starsSeed": 132413 },
+  "starsSeed": 132413,
   "planets": [
     { "x": 10, "y": 154, "visible": true },
     { "x": -39, "y": 157, "visible": true },
@@ -22,7 +22,7 @@
     { "x1": 0, "y1": 0, "x2": 0, "y2": 0 }
   ],
   "background": {
-    "hue": 0,
+    "hueRotate": 0,
     "radial": true,
     "color": { "hue": 50, "saturation": 50, "lightness": 50 },
     "dark": true
@@ -58,28 +58,26 @@
     "hue": 230
   },
   "handle": { "handle0": true },
-  "filter": {
-    "layers": [
-      {
-        "fractalNoise": false,
-        "turbFreqX": 1,
-        "turbFreqY": 1,
-        "turbOct": 1,
-        "turbBlur": 2,
-        "dispScale": 200,
-        "specConstant": 75,
-        "specExponent": 30,
-        "surfaceScale": 5,
-        "pointX": -50,
-        "pointY": -100,
-        "pointZ": 400,
-        "lightColor": "#ffffff",
-        "opacity": 100,
-        "blurX": 2,
-        "blurY": 2
-      }
-    ]
-  },
+  "filterLayers": [
+    {
+      "fractalNoise": false,
+      "turbFreqX": 1,
+      "turbFreqY": 1,
+      "turbOct": 1,
+      "turbBlur": 2,
+      "dispScale": 200,
+      "specConstant": 75,
+      "specExponent": 30,
+      "surfaceScale": 5,
+      "pointX": -50,
+      "pointY": -100,
+      "pointZ": 400,
+      "lightColor": { "hue": 0, "saturation": 0, "lightness": 100 },
+      "opacity": 100,
+      "blurX": 2,
+      "blurY": 2
+    }
+  ],
   "stone": {
     "fractalNoise": true,
     "turbFreqX": 4,
