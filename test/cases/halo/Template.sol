@@ -27,7 +27,7 @@ contract Template {
         abi.encodePacked(
           __result,
           '      <g\n        style="transform: rotate(calc(',
-          uintToString(__i, 0),
+          SolidMustacheHelpers.uintToString(__i, 0),
           ' * 15deg)) translateY(-520px);"\n      >\n        ',
           __input.rhythm[__i].halo0 ? '<use href="#h0"></use>' : "",
           "\n        ",
@@ -38,7 +38,9 @@ contract Template {
     }
     __result = string(abi.encodePacked(__result, "  </g>\n</svg>"));
   }
+}
 
+library SolidMustacheHelpers {
   function intToString(int256 i, uint256 decimals)
     internal
     pure

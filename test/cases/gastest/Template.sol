@@ -33,7 +33,9 @@ contract Template {
       )
     );
   }
+}
 
+library SolidMustacheHelpers {
   function intToString(int256 i, uint256 decimals)
     internal
     pure

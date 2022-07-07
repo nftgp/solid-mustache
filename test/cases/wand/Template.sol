@@ -5,16 +5,16 @@ string constant __constant0 = '%, 0)"/> </radialGradient> <circle style="fill:ur
 
 contract Template {
   struct __Input {
-    Filter filter;
+    Handle handle;
     Background background;
     Xp xp;
-    Stars stars;
-    Stone stone;
-    Frame frame;
     Halo halo;
-    Handle handle;
-    Aspect[8] aspects;
+    Stars stars;
     Planet[8] planets;
+    Stone stone;
+    Aspect[8] aspects;
+    Filter filter;
+    Frame frame;
     Sparkle[] sparkles;
   }
 
@@ -34,20 +34,20 @@ contract Template {
     uint8 surfaceScale;
     uint8 specConstant;
     uint8 specExponent;
-    string lightColor;
+    uint8 opacity;
     int16 pointX;
     int16 pointY;
     int16 pointZ;
-    uint8 opacity;
+    string lightColor;
   }
 
   struct Background {
-    uint16 hue;
     bool radial;
     bool light;
-    Color color;
     bool dark;
     bool linear;
+    uint16 hue;
+    Color color;
   }
 
   struct Color {
@@ -57,9 +57,9 @@ contract Template {
   }
 
   struct Xp {
+    bool crown;
     uint32 amount;
     uint32 cap;
-    bool crown;
   }
 
   struct Stars {
@@ -71,7 +71,6 @@ contract Template {
     uint8 turbFreqX;
     uint8 turbFreqY;
     uint8 turbOct;
-    uint256 seed;
     int8 redAmp;
     int8 redExp;
     int8 redOff;
@@ -82,6 +81,7 @@ contract Template {
     int8 blueExp;
     int8 blueOff;
     uint16 rotation;
+    uint256 seed;
   }
 
   struct Frame {
@@ -125,9 +125,9 @@ contract Template {
   }
 
   struct Sparkle {
+    uint8 scale;
     int16 tx;
     int16 ty;
-    uint8 scale;
   }
 
   function render(__Input memory __input)

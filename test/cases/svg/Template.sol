@@ -3,9 +3,9 @@ pragma solidity ^0.8.6;
 
 contract Template {
   struct __Input {
+    bool showCircle;
     string color;
     string[] words;
-    bool showCircle;
   }
 
   function render(__Input memory __input)
@@ -49,22 +49,6 @@ contract Template {
     );
   }
 
-  function text(string memory __input)
-    internal
-    pure
-    returns (string memory __result)
-  {
-    __result = string(
-      abi.encodePacked(
-        __result,
-        '<text x="200" y="200">',
-        __input,
-        "</text>\n",
-        textsub(__input)
-      )
-    );
-  }
-
   function textsub(string memory __input)
     internal
     pure
@@ -80,6 +64,24 @@ contract Template {
     );
   }
 
+  function text(string memory __input)
+    internal
+    pure
+    returns (string memory __result)
+  {
+    __result = string(
+      abi.encodePacked(
+        __result,
+        '<text x="200" y="200">',
+        __input,
+        "</text>\n",
+        textsub(__input)
+      )
+    );
+  }
+}
+
+library SolidMustacheHelpers {
   function intToString(int256 i, uint256 decimals)
     internal
     pure

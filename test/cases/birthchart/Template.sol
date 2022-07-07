@@ -39,7 +39,9 @@ contract Template {
     }
     __result = string(abi.encodePacked(__result, "    </g>\n  </g>\n</svg>"));
   }
+}
 
+library SolidMustacheHelpers {
   function intToString(int256 i, uint256 decimals)
     internal
     pure

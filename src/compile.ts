@@ -766,9 +766,12 @@ const solDefineStructs = (typeNames: TypeName[]): string => {
 
   const structDefs = uniqueStructs.map(({ name, inputType }) => {
     const struct = inputType as StructInput
-    const fieldDefs = Object.entries(struct.members).map(
-      ([name, type]) => `${findTypeName(typeNames, type)} ${name};`
-    )
+    const fieldDefs = Object.entries(struct.members)
+      .sort(([, a], [, b]) => {
+        // sort so that fixed length fields come first, ordered by length ascending
+        return getInputTypeLength(a) - getInputTypeLength(b)
+      })
+      .map(([name, type]) => `${findTypeName(typeNames, type)} ${name};`)
     return `
     struct ${name} {
       ${fieldDefs.join("\n")}
@@ -777,6 +780,30 @@ const solDefineStructs = (typeNames: TypeName[]): string => {
   })
 
   return structDefs.join("\n\n")
+}
+
+// A return value of Infinity indicates dynamic length
+const getInputTypeLength = (type: InputType): number => {
+  switch (type.type) {
+    case "int":
+    case "uint":
+      return type.length || 256
+    case "bool":
+      return 8
+    case "string":
+      return type.length || Infinity
+    case "array":
+      return type.length
+        ? type.length * getInputTypeLength(type.elementType)
+        : Infinity
+    case "struct":
+      return Object.values(type.members).reduce(
+        (acc, member) => acc + getInputTypeLength(member),
+        0
+      )
+  }
+
+  return Infinity
 }
 
 const solDefinePartial = (
