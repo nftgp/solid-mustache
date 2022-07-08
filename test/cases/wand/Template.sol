@@ -13,7 +13,7 @@ contract Template {
     Planet[8] planets;
     Stone stone;
     Aspect[8] aspects;
-    FilterLayer[] filterLayers;
+    FilterLayer[3] filterLayers;
     Frame frame;
     Sparkle[] sparkles;
   }
@@ -27,10 +27,10 @@ contract Template {
     uint8 dispScale;
     uint8 blurX;
     uint8 blurY;
-    uint8 surfaceScale;
-    uint8 specConstant;
     uint8 specExponent;
     uint8 opacity;
+    int16 surfaceScale;
+    uint16 specConstant;
     int16 pointX;
     int16 pointY;
     int16 pointZ;
@@ -447,7 +447,7 @@ library BackgroundLayer {
           '" result="bcm',
           SolidMustacheHelpers.uintToString(__i, 0),
           '" /> <feSpecularLighting surfaceScale="',
-          SolidMustacheHelpers.uintToString(
+          SolidMustacheHelpers.intToString(
             __input.filterLayers[__i].surfaceScale,
             0
           ),
