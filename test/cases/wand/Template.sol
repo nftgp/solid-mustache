@@ -6,12 +6,12 @@ string constant __constant0 = '%, 0)"/> </radialGradient> <circle style="fill:ur
 contract Template {
   struct __Input {
     Handle handle;
-    Xp xp;
     Background background;
-    uint256 starsSeed;
+    Xp xp;
+    Stone stone;
+    uint256 seed;
     Halo halo;
     Planet[8] planets;
-    Stone stone;
     Aspect[8] aspects;
     FilterLayer[3] filterLayers;
     Frame frame;
@@ -54,7 +54,6 @@ contract Template {
     bool light;
     bool dark;
     bool linear;
-    uint16 hueRotate;
     Color color;
   }
 
@@ -79,7 +78,6 @@ contract Template {
     int8 blueExp;
     int8 blueOff;
     uint16 rotation;
-    uint256 seed;
   }
 
   struct Frame {
@@ -124,8 +122,8 @@ contract Template {
 
   struct Sparkle {
     uint8 scale;
-    int16 tx;
-    int16 ty;
+    uint16 tx;
+    uint16 ty;
   }
 
   function render(__Input memory __input)
@@ -141,7 +139,7 @@ contract Template {
         BackgroundLayer.background(__input.background),
         BackgroundLayer.xpBar(__input.xp),
         BackgroundLayer.stars(__input),
-        stone(__input.stone),
+        stone(__input),
         FrameLayer.frame(__input.frame),
         halo(__input.halo),
         HandleLayer.handles(__input.handle),
@@ -152,7 +150,7 @@ contract Template {
     );
   }
 
-  function stone(Stone memory __input)
+  function stone(__Input memory __input)
     internal
     pure
     returns (string memory __result)
@@ -161,38 +159,38 @@ contract Template {
       abi.encodePacked(
         __result,
         '<filter id="s"> <feTurbulence ',
-        __input.fractalNoise ? 'type="fractalNoise"' : "",
+        __input.stone.fractalNoise ? 'type="fractalNoise"' : "",
         ' baseFrequency="',
-        SolidMustacheHelpers.uintToString(__input.turbFreqX, 3),
+        SolidMustacheHelpers.uintToString(__input.stone.turbFreqX, 3),
         " ",
-        SolidMustacheHelpers.uintToString(__input.turbFreqY, 3),
+        SolidMustacheHelpers.uintToString(__input.stone.turbFreqY, 3),
         '" numOctaves="',
-        SolidMustacheHelpers.uintToString(__input.turbOct, 0),
+        SolidMustacheHelpers.uintToString(__input.stone.turbOct, 0),
         '" seed="',
         SolidMustacheHelpers.uintToString(__input.seed, 0),
         '" /> <feComponentTransfer> <feFuncR type="gamma" amplitude="',
-        SolidMustacheHelpers.intToString(__input.redAmp, 2),
+        SolidMustacheHelpers.intToString(__input.stone.redAmp, 2),
         '" exponent="',
-        SolidMustacheHelpers.intToString(__input.redExp, 2),
+        SolidMustacheHelpers.intToString(__input.stone.redExp, 2),
         '" offset="',
-        SolidMustacheHelpers.intToString(__input.redOff, 2)
+        SolidMustacheHelpers.intToString(__input.stone.redOff, 2)
       )
     );
     __result = string(
       abi.encodePacked(
         __result,
         '" /> <feFuncG type="gamma" amplitude="',
-        SolidMustacheHelpers.intToString(__input.greenAmp, 2),
+        SolidMustacheHelpers.intToString(__input.stone.greenAmp, 2),
         '" exponent="',
-        SolidMustacheHelpers.intToString(__input.greenExp, 2),
+        SolidMustacheHelpers.intToString(__input.stone.greenExp, 2),
         '" offset="',
-        SolidMustacheHelpers.intToString(__input.greenOff, 2),
+        SolidMustacheHelpers.intToString(__input.stone.greenOff, 2),
         '" /> <feFuncB type="gamma" amplitude="',
-        SolidMustacheHelpers.intToString(__input.blueAmp, 2),
+        SolidMustacheHelpers.intToString(__input.stone.blueAmp, 2),
         '" exponent="',
-        SolidMustacheHelpers.intToString(__input.blueExp, 2),
+        SolidMustacheHelpers.intToString(__input.stone.blueExp, 2),
         '" offset="',
-        SolidMustacheHelpers.intToString(__input.blueOff, 2),
+        SolidMustacheHelpers.intToString(__input.stone.blueOff, 2),
         '" /> <feFuncA type="discrete" tableValues="1"/> </feComponentTransfer> <feComposite operator="in" in2="SourceGraphic" result="tex" /> ',
         ' <feGaussianBlur in="SourceAlpha" stdDeviation="30" result="glow" /> <feColorMatrix in="glow" result="bgg" type="matrix" values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 .8 0 " /> <feMerge> <feMergeNode in="bgg"/> <feMergeNode in="tex"/> </feMerge> </filter> <radialGradient id="ss"> <stop offset="0%" stop-color="hsla(0, 0%, 0%, 0)"/> <stop offset="90%" stop-color="hsla(0, 0%, 0%, .8)"/> </radialGradient> <defs> ',
         ' <clipPath id="sc"> <circle cx="1000" cy="1060" r="260"/> </clipPath> </defs> ',
@@ -202,7 +200,7 @@ contract Template {
     __result = string(
       abi.encodePacked(
         __result,
-        SolidMustacheHelpers.uintToString(__input.rotation, 0),
+        SolidMustacheHelpers.uintToString(__input.stone.rotation, 0),
         ', 1000, 1060)" cx="1000" cy="1060" r="260" filter="url(#s)" /> ',
         ' <circle cx="1200" cy="1060" r="520" fill="url(#ss)" clip-path="url(#sc)" /> <defs> <radialGradient id="sf" cx="606.78" cy="1003.98" fx="606.78" fy="1003.98" r="2" gradientTransform="translate(-187630.67 -88769.1) rotate(-33.42) scale(178.04 178.05)" gradientUnits="userSpaceOnUse" > <stop offset=".05" stop-color="#fff" stop-opacity=".7"/> <stop offset=".26" stop-color="#ececec" stop-opacity=".5"/> <stop offset=".45" stop-color="#c4c4c4" stop-opacity=".5"/> <stop offset=".63" stop-color="#929292" stop-opacity=".5"/> <stop offset=".83" stop-color="#7b7b7b" stop-opacity=".5"/> <stop offset="1" stop-color="#cbcbca" stop-opacity=".5"/> </radialGradient> <radialGradient id="sh" cx="1149" cy="2660" fx="1149" fy="2660" r="76" gradientTransform="translate(312 2546) rotate(-20) scale(1 -.5)" gradientUnits="userSpaceOnUse" > <stop offset="0" stop-color="#fff" stop-opacity=".7"/> <stop offset="1" stop-color="#fff" stop-opacity="0"/> </radialGradient> </defs> <path fill="url(#sf)" d="M1184 876a260 260 0 1 1-368 368 260 260 0 0 1 368-368Z"/> <path fill="url(#sh)" d="M919 857c49-20 96-15 107 11 10 26-21 62-70 82s-97 14-107-12c-10-25 21-62 70-81Z"/>'
       )
@@ -356,9 +354,9 @@ contract Template {
         abi.encodePacked(
           __result,
           ' <use width="250" height="377" transform="translate(',
-          SolidMustacheHelpers.intToString(__input.sparkles[__i].tx, 0),
+          SolidMustacheHelpers.uintToString(__input.sparkles[__i].tx, 0),
           " ",
-          SolidMustacheHelpers.intToString(__input.sparkles[__i].ty, 0),
+          SolidMustacheHelpers.uintToString(__input.sparkles[__i].ty, 0),
           ") scale(",
           SolidMustacheHelpers.uintToString(__input.sparkles[__i].scale, 2),
           ')" href="#sp" /> '
@@ -550,14 +548,6 @@ library BackgroundLayer {
     pure
     returns (string memory __result)
   {
-    __result = string(
-      abi.encodePacked(
-        __result,
-        '<g style="filter: hue-rotate(',
-        SolidMustacheHelpers.uintToString(__input.hueRotate, 0),
-        'deg);"> '
-      )
-    );
     if (__input.radial) {
       __result = string(abi.encodePacked(__result, " "));
       if (__input.light) {
@@ -641,7 +631,7 @@ library BackgroundLayer {
     __result = string(
       abi.encodePacked(
         __result,
-        ' </g> <path filter="url(#bb)" style="opacity: .5" d="m1000 2435-199 334 195-335-573 212 570-214-892-20 889 18-1123-339 1121 335-1244-713 1243 709-1242-1106L988 2418-133 938 990 2415 101 616l892 1796L423 382l573 2028L801 260l199 2149 199-2149-195 2150 573-2028-569 2030 891-1796-889 1799L2133 938 1012 2418l1244-1102-1243 1106 1243-709-1244 713 1121-335-1123 338 889-17-892 20 570 214-573-212 195 335-199-334z" fill="white" />'
+        ' <path filter="url(#bb)" style="opacity: .5" d="m1000 2435-199 334 195-335-573 212 570-214-892-20 889 18-1123-339 1121 335-1244-713 1243 709-1242-1106L988 2418-133 938 990 2415 101 616l892 1796L423 382l573 2028L801 260l199 2149 199-2149-195 2150 573-2028-569 2030 891-1796-889 1799L2133 938 1012 2418l1244-1102-1243 1106 1243-709-1244 713 1121-335-1123 338 889-17-892 20 570 214-573-212 195 335-199-334z" fill="white" />'
       )
     );
   }
@@ -675,7 +665,7 @@ library BackgroundLayer {
       abi.encodePacked(
         __result,
         '<defs> <filter id="st"> <feTurbulence baseFrequency=".1" seed="',
-        SolidMustacheHelpers.uintToString(__input.starsSeed, 0),
+        SolidMustacheHelpers.uintToString(__input.seed, 0),
         '"/> <feColorMatrix values="0 0 0 7 -4 0 0 0 7 -4 0 0 0 7 -4 0 0 0 0 1" /> </filter> </defs> <clipPath id="stc"> <circle cx="1000" cy="1060" r="520"/> </clipPath> <mask id="stm"> <g filter="url(#st)" transform="scale(2)"> <rect width="100%" height="100%"/> </g> </mask> <circle class="bc" cx="1000" cy="1060" r="260"/> <circle class="bc" cx="1000" cy="1060" r="360"/> <circle class="bc" cx="1000" cy="1060" r="440"/> <circle class="bc" cx="1000" cy="1060" r="520"/> <line class="bc" x1="740" y1="610" x2="1260" y2="1510"/> <line class="bc" x1="1260" y1="610" x2="740" y2="1510"/> <line class="bc" x1="1450" y1="800" x2="550" y2="1320"/> <line class="bc" x1="1450" y1="1320" x2="550" y2="800"/> <g style="filter: blur(2px);"> <rect width="100%" height="100%" fill="white" mask="url(#stm)" clip-path="url(#stc)" /> </g>'
       )
     );

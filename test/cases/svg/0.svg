@@ -7,6 +7,14 @@
     stroke="deeppink"
     stroke-width="8"
   ></line>
+    <line
+      x1="0"
+      y1="0"
+      x2="200"
+      y2="200"
+      stroke="deeppink"
+      stroke-width="4"
+    ></line>
     <text x="20" y="20">Hello</text>
     <text x="100" y="20" fill="deeppink">Hello</text>
 

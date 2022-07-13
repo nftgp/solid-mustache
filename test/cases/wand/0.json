@@ -1,6 +1,6 @@
 {
   "frame": { "title": "FLOURISHING MISTY WORLD", "level3": true },
-  "starsSeed": 132413,
+  "seed": 132413,
   "planets": [
     { "x": 10, "y": 154, "visible": true },
     { "x": -39, "y": 157, "visible": true },
@@ -22,7 +22,6 @@
     { "x1": 0, "y1": 0, "x2": 0, "y2": 0 }
   ],
   "background": {
-    "hueRotate": 0,
     "radial": true,
     "color": { "hue": 50, "saturation": 50, "lightness": 50 },
     "dark": true
@@ -129,7 +128,6 @@
     "blueExp": 1,
     "blueOff": -15,
     "rotation": 306,
-    "seed": 1004123123,
     "seasonsAmplitude": 76,
     "secondInDay": 41269,
     "secondInYear": 14037118

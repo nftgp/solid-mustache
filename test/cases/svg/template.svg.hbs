@@ -7,6 +7,16 @@
     stroke="{{color}}"
     stroke-width="8"
   ></line>
+  {{#with color}}
+    <line
+      x1="0"
+      y1="0"
+      x2="200"
+      y2="200"
+      stroke="{{.}}"
+      stroke-width="4"
+    ></line>
+  {{/with}}
   {{#each words}}
     <text x="20" y="20">{{this}}</text>
     <text x="100" y="20" fill="{{../color}}">{{.}}</text>

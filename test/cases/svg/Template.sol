@@ -21,6 +21,14 @@ contract Template {
         '"\n    stroke-width="8"\n  ></line>\n'
       )
     );
+    __result = string(
+      abi.encodePacked(
+        __result,
+        '    <line\n      x1="0"\n      y1="0"\n      x2="200"\n      y2="200"\n      stroke="',
+        __input.color,
+        '"\n      stroke-width="4"\n    ></line>\n'
+      )
+    );
     for (uint256 __i; __i < __input.words.length; __i++) {
       __result = string(
         abi.encodePacked(

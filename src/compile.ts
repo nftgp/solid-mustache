@@ -297,6 +297,10 @@ ${SOL_HELPERS_LIBRARY}
       return processEachBlock(statement, scope)
     }
 
+    if (head === "with") {
+      return processWithBlock(statement, scope)
+    }
+
     if (head === "if" || head === "unless") {
       return processConditionalBlock(statement, scope)
     }
@@ -392,6 +396,20 @@ ${SOL_HELPERS_LIBRARY}
         line: `}`,
       },
     ]
+  }
+
+  function processWithBlock(
+    statement: AST.BlockStatement,
+    scope: Scope
+  ): Output[] {
+    const { params, program } = statement
+    const path = params[0]
+    if (path.type !== "PathExpression") throw new Error("Unsupported")
+    const pathExpr = path as AST.PathExpression
+    const resolvedPath = scope.resolve(pathExpr)
+    const newScope = scope.dive(resolvedPath)
+
+    return processProgram(program, newScope)
   }
 
   function processPartialStatement(
